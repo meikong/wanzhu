@@ -1,0 +1,9 @@
+@charset "utf-8";
+div.myself{ padding:4px 10px 3px; background:#fbfbfb url(../images/pageNum.jpg) no-repeat 100% 100%; border:0 solid #ddd; border-width:0 1px 1px; height:23px; font-weight:normal; text-align:center;}
+div.myself a,div.myself span.current,div.myself span.disabled{ display:inline-block; margin:0 1px; padding:0 6px; background:url(../images/btn_pageNum.gif) repeat-x 0 0; border:1px solid #b4b4b4; height:18px; line-height:18px; color:#666; text-align:center; font-family:"宋体",Arial, Helvetica, sans-serif;}
+div.myself a:hover{ background:url(../images/btn_pageNum.gif) repeat-x 0 -18px; color:#000;}
+div.myself span.current{ background:url(../images/btn_pageNum.gif) repeat-x 0 -18px; color:#000; font-weight:bold;}
+div.myself span.disabled{ background:url(../images/btn_pageNum.gif) repeat-x 0 -36px; color:#999;}
+div.myself input{padding:0px 0px 0px 0px; line-height:10px; text-align:center; height:18px; margin: 0px 0px 2px 0px;}
+
+

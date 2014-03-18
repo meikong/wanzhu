@@ -1,0 +1,9 @@
+#set($base = ${link.getContextPath()})
+$cookie.setRequest($request)
+#if($base == "/") 
+	#set($base = "") 
+#end
+<div class="web_root"  style="display:none">${base}</div>
+<script type="text/javascript">
+var ctx = "${base}";
+</script>

@@ -1,0 +1,113 @@
+<div class="login_form br5">
+	<form id="login_index_form" action="${base}/user/login.json" method="post">
+    	<label id="loginIndexErrorMsg" class="error" style="display:none"></label>
+    	    <input type="text" name="email" value="$!{cookie.get('3wcoffeeuseremail').value}" id="nameValid" placeholder="请输入登录邮箱" class="br5 inputStyle mb18" tabindex="1" />
+            <input type="password" name="password" id="passwordValid" class="br5 inputStyle mb10" placeholder="请输入密码" value="" tabindex="2" />
+    	<div>
+        	<input type="checkbox"  class="checkBox" value="" name="autoLogin" /> 
+            <span>记住我</span>
+        </div>
+        <div class="login">
+        	<input type="submit" value="登 录" class="br3 btn_login"  />
+        	<!-- <a href="javascript:void(0)" class="br3 btn_login">登 录</a> -->
+            <a href="${base}/forgetpassword.html" class="forgot_psw">忘记密码？</a>
+        </div>
+        <div>
+        	<a id="oauthlink" href="${base}/ologin/auth/sina" class="weibo">使用微博登录</a>
+            <a href="${base}/register.html" class="register">注册新帐号</a>
+        </div>
+    </form>
+</div> 
+         
+        <script type="text/javascript">      
+      /**
+       * ajaxform表单提交
+       */     
+       jQuery.validator.addMethod("checkEmail",function(value, element) {
+    		var myreg =  /^[_a-zA-Z0-9\-]+(\.[_a-zA-Z0-9\-]*)*@[a-zA-Z0-9\-]+([\.][a-zA-Z0-9\-]+)+$/;
+    		if (value != '') {if (!myreg.test(value)) {return false;}};
+    		return true;}, "请输入有效的邮箱地址");   
+    	//添加转换小写功能
+    	jQuery.validator.addMethod("toLowerCase", function(value, element) {
+    		value = $.trim(String(value));//去空
+    		if(value==""){element.value = ""; return this.optional(element)|| true;}
+    		if(value.toLowerCase()!=value) element.value = value.toLowerCase();
+    		return this.optional(element)|| true;
+    		}, ""); 
+    	
+       $('#login_index_form').validate({
+			onfocusin:true,
+    		rules : {
+    			'email' : {
+    				required : true,
+    				maxlength: 128,
+    				checkEmail:true,
+    				toLowerCase : true,
+    				email: true
+    			},
+    			'password' : {
+    				required : true,
+    				rangelength: [6,18]
+    			}
+    		},
+    		messages : {
+    			'email' : {
+    				required : "请输入登录邮箱",
+    				maxlength: "请输入有效的邮箱地址",
+    				email: "请输入有效的邮箱地址"
+    			},
+    			'password' : {
+    				required : "请输入密码",
+//     				rangelength: "6~18个字符,由数字、英文字母和字符组成."
+    				rangelength: "密码为6-16位，请区分大小写"
+    			}
+    		}
+    	});
+
+      $('#login_index_form').ajaxForm({
+          beforeSubmit: function(a,f,o) {
+          	if ($('#login_index_form').valid()) { 
+          		if($('.checkBox').attr("checked")){
+          			$('.checkBox').val(1);
+          		}else{
+          			$('.checkBox').val(0);
+          		}
+          	} else
+          		return false;
+          	},
+          	success: function(data){
+          		if (data) {
+      				if (data.success == true) {
+      			    	if(data.content.loginToUrl){
+      			      		document.location.href=data.content.loginToUrl;
+      			      	}else{
+      			      		document.location.href=ctx+"/index.html";
+      			      	}
+      				} else {
+      					$('#loginIndexErrorMsg').hide();
+      					$('#loginIndexErrorMsg').html(data.msg+"<em class=\"error_arrow\"></em>");
+      					$('#loginIndexErrorMsg').show("fast");//.delay(2000).hide('fast');
+      				}
+      			}
+          	}
+        });
+      
+      $('#nameValid').focus(function(){
+      	$('#loginIndexErrorMsg').hide('fast');
+      });
+ </script>
+ 
+ 
+ <!--  <div class="content editBox loginBox">
+        <form id="login_index_form" action="${base}/user/login.json" method="post">
+        <ul>
+                 <li><label>邮箱：</label><input name="email" value="$!{cookie.get('3wcoffeeuseremail').value}" type="text" id="nameValid" class="text-input"/></li>
+                <li class="forget"><label>密码：</label><input name="password" type="password" id="passwordValid" class="text-input"/><label id="loginIndexErrorMsg" class="error" style="display:none"></label></li>
+                <li ><label></label><input class="checkBox" type="checkbox" name="autoLogin">自动登录&nbsp;&nbsp;&nbsp;
+                	<a href="${base}/forgetpassword.html">忘记密码？</a></li>
+                <li><label></label><input type="submit" value="登 录" class="btn02"  /></li>              
+            </ul> 
+        </form>       
+            <div class="otherAccount">其他方式登录：<a id="oauthlink" href="${base}/ologin/auth/sina"><img src="${base}/images/icon_sina.gif" />新浪微博</a></div>
+                    
+        </div> -->

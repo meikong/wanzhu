@@ -1,0 +1,42 @@
+#jMonthCalendar{ position:relative;}
+.MonthlyCalendar .MonthNavigation{ padding:0 11px; clear:both;}
+
+.MonthlyCalendar .MonthNavPrev,
+.MonthlyCalendar .MonthNavNext,
+.MonthlyCalendar .TodayLink,
+.MonthlyCalendar .YearNavNext,
+.MonthlyCalendar .YearNavPrev,
+.MonthlyCalendar .MonthName{ float:left; margin:0 4px; height:40px; line-height:40px; text-align:center;}
+
+.MonthlyCalendar .MonthName{ font-size:14px; font-weight:bold; color:#258e00; margin:0 30px;}
+.MonthlyCalendar .MonthNavPrev{ margin:0 30px 0 5px;}
+.MonthlyCalendar .MonthNavNext{ margin:0 3px 0 25px;}
+.MonthlyCalendar .TodayLink{ margin:0 10px;}
+.MonthlyCalendar .YearNavNext{ margin:0 10px;}
+.MonthlyCalendar .YearNavPrev{ margin:0 10px;}
+
+.MonthlyCalendar .MonthNavPrev a,
+.MonthlyCalendar .MonthNavNext a,
+.MonthlyCalendar .TodayLink a,
+.MonthlyCalendar .YearNavNext a,
+.MonthlyCalendar .YearNavPrev a{ color:#666;}
+
+.MonthlyCalendar{ border:1px solid #ddd; border-collapse:collapse;}
+.MonthlyCalendar #CalendarHead{ background:#f8f8f8;}
+/*.MonthlyCalendar #CalendarHead .DateHeader{ background:#258e00; width:14%; font-size:12px; font-weight:normal; color:#fff; text-align:center;}*/
+
+.DateBox{ border:1px solid #ddd; line-height:42px; text-align:center;}
+.DateLabel{ background:#f8f8f8; height:16px; text-align:right;}
+.DateLabel a{ padding:0 5px 2px; line-height:16px; color:#666; cursor:pointer;}
+
+#CalendarBody .Inactive,
+#CalendarBody .Weekend{ background:#f8f8f8;}
+#CalendarBody .Inactive,
+#CalendarBody .Weekend a{ color:#333;}
+.Today{ background:#258e00;}
+#jMonthCalendar .MonthlyCalendar #CalendarBody .Today a{ font-weight:bold; color:#fff;}
+/*#jMonthCalendar .Event { font-size:12px; padding:1px; background-color:#C0D0FF; margin-bottom:1px; -moz-border-radius:0 8px 8px 8px; border:solid 1px #ccc; cursor:pointer; display:block; }*/
+#jMonthCalendar .Event{ background:#C0D0FF; cursor:pointer;} 
+#jMonthCalendar .MonthlyCalendar #CalendarBody .DateBox .Event a{ font-weight:bold; color:#2b8c0b; text-decoration:none;}
+#jMonthCalendar .MonthlyCalendar #CalendarBody .Today .Event a{ font-size:13x; color:#ff6600;}
+

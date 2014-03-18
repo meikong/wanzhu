@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>活动签到</title>
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/page.css" type="text/css"	rel="stylesheet" />
+<script src="${base}/template/admin/js/jquery.pager.js"></script>
+<script src="${base}/template/admin/js/checkIn.js"></script>
+<script>
+$(function() {
+	$('#Pagination').pager({
+      currPage: ${page.getCurrentPageNo()},
+      pageNOName: "pageNo",
+      form: "searchForm",
+      pageCount: ${page.getTotalPageCount()},
+      pageSize: ${page.getPageSize()}
+    });
+});
+function reload(iframe,src){
+	$("#"+iframe).attr("src",src);
+}
+</script>
+</head>
+<body>
+<div class="info" style="border-bottom:1px #060 solid">
+  <h5 class="clearfix">活动信息&nbsp;&nbsp;<a href="${base}/eventadmin/queryEvents" >返回</a></h5>
+</div>
+<div>
+  <ul class="infoBox">
+    <li>主题:$!{event.topic}</li>
+    <li>报名人数上限:$!{event.quota}</li>
+    <li>预计开始时间:$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{event.starttime})</li>
+    <li>预计结束时间:$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{event.endtime})</li>
+    <li>网站报名费用:$!{event.expenseonline} 元/人</li>
+    <li>现场报名费用:$!{event.expenseoffline} 元/人</li>
+  </ul>
+</div>
+<div class="info">
+  <h5 class="clearfix">签到</h5>
+</div>
+<div id="tabs">
+  <ul>
+    <li><a href="#tabs1" onclick="reload('Meniframe1','${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=');">报名人员</a></li>
+    <li><a href="#tabs2" onclick="reload('Meniframe2','${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=1');">已签到人员</a></li>
+    <li><a href="#tabs3" onclick="reload('Meniframe3','${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=2');">未签到人员</a></li>
+    <li><a href="#tabs4" onclick="reload('Meniframe4','${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=3');">已审核通过人员</a></li>
+    <li><a href="#tabs5" onclick="reload('Meniframe5','${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=4');">未审核通过人员</a></li>
+        <li><a href="#tabs6" onclick="reload('Meniframe6','${base}/eventadmins/repairContactMenu.xls');">导出EXCEL</a></li>
+  </ul>
+  <div id="tabs1">
+     <iframe width="100%" height="420;" id="Meniframe1" name="Meniframe1"  frameborder="0" scrolling="no" src="${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start="></iframe>
+  </div>
+  <div id="tabs2">
+     <iframe width="100%" height="420;" id="Meniframe2" name="Meniframe2"   frameborder="0" scrolling="no" src="${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=1"></iframe>
+  </div>
+  <div id="tabs3">
+   <iframe width="100%" height="420;" id="Meniframe3" name="Meniframe3" frameborder="0" scrolling="no" src="${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=2"></iframe>
+  </div>
+  <div id="tabs4">
+   <iframe width="100%" height="420;" id="Meniframe4" name="Meniframe4" frameborder="0" scrolling="no" src="${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=3"></iframe>
+  </div>
+  <div id="tabs5">
+   <iframe width="100%" height="420;" id="Meniframe5" name="Meniframe5" frameborder="0" scrolling="no" src="${base}/eventadmin/queryCheckIn?id=$!{event.eventid}&start=4"></iframe>
+  </div>
+  <div id="tabs6">
+   <iframe width="100%" height="420;" id="Meniframe6" name="Meniframe6" frameborder="0" scrolling="no" src="${base}/eventadmin/repairContactMenu.xls?id=$!{event.eventid}&start="></iframe>
+  </div>
+</div>
+</body>
+</html>

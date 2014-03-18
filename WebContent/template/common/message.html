@@ -1,0 +1,177 @@
+<!-- 发私信公共模块 -->
+<a href="#TB_inline?testNull=null&height=250&width=425&inlineId=message"  id="addSendMessageNav"  style="display:none;" title="登录" class="thickbox">&nbsp;</a>
+<div id="message" style="display:none;">
+	        <div class="messageBoxPop">
+	        	<input type="hidden" id="friendId" value=""/>
+	        	<table>
+	        		<tr>
+	        			<td width="50">发给：</td>
+	        			<td id="usertip">
+							<input name="" id="username"  type="text" class="inputStyle br5" value="$!{friendName}" disabled="disabled" />
+						</td>
+	        		</tr>
+	        		<tr>
+	        			<td valign="top">内容：</td>
+	        			<td>
+	        				<textarea id="content" cols="" rows="3" class="textareaCount" style="margin-bottom:5px;"></textarea>
+	        				<div class="statementText">还可输入200个字</div>
+	        			</td>
+	        		</tr>
+	        		<tr>
+	        			<td></td>
+	        			<td><input type="submit" class="br5 btn_login" value="发 送" onclick="sendMessage();" /></td>
+	        		</tr>
+	        	</table>
+	        </div>
+		</div>
+
+<script type="text/javascript">
+
+/**
+ * point:活动id，作为锚点依据
+ */
+function send(userId,username,point)
+{
+	//是否登录
+	if("$!session.getAttribute('USER_CONTEXT').getUserid()".length == 0)
+	{
+		showLoginDialog(function(data){
+			if(data.success)
+			{
+				closeLoginDialog();
+				window.location.href=convertUrl(window.location.href,point);
+			}
+		},null,false);
+		return ;
+	}
+	//非好友不能发私信
+	if(null == userId || userId.length==0)
+	{
+		jQuery.blockUI({ css: { 
+            border: 'none', 
+            padding: '15px', 
+            backgroundColor: '#0061a6', 
+            '-webkit-border-radius': '10px', 
+            '-moz-border-radius': '10px', 
+            opacity: .8, 
+            color: '#fff' 
+        },
+        overlayCSS:  { 
+            backgroundColor: 'none', 
+            opacity:         0.6, 
+            cursor:          'wait' 
+        },
+        message:"非好友不能发私信..."
+		}); 
+ 
+        setTimeout(jQuery.unblockUI, 500); 
+		return;
+	}
+	$("#content").val("");
+	$("#friendId").val(userId);
+	$("#username").val(username);
+	$("#addSendMessageNav").click();
+}
+
+function sendMessage() {
+	var textHtml=jQuery("#content").val();
+	if(textHtml.length==0){
+		jQuery.blockUI({ css: { 
+            border: 'none', 
+            padding: '15px', 
+            backgroundColor: '#0061a6', 
+            '-webkit-border-radius': '10px', 
+            '-moz-border-radius': '10px', 
+            opacity: .8, 
+            color: '#fff' 
+        },
+        overlayCSS:  { 
+            backgroundColor: 'none', 
+            opacity:         0.6, 
+            cursor:          'wait' 
+        },
+        message:"写点东西吧，内容不能为空哦"
+		}); 
+ 
+        setTimeout(jQuery.unblockUI, 500); 
+
+		return;
+	}
+	if(textHtml.length>200 ){
+		jQuery.blockUI({ css: { 
+            border: 'none', 
+            padding: '15px', 
+            backgroundColor: '#0061a6', 
+            '-webkit-border-radius': '10px', 
+            '-moz-border-radius': '10px', 
+            opacity: .8, 
+            color: '#fff' 
+        },
+        overlayCSS:  { 
+            backgroundColor: 'none', 
+            opacity:         0.6, 
+            cursor:          'wait' 
+        },
+        message:"你输入的文本过长，请确认后再发送..."
+		}); 
+ 
+        setTimeout(jQuery.unblockUI, 500); 
+
+		return;
+	}
+	
+	var _friendId = document.getElementById("friendId").value;
+	var _content = document.getElementById("content").value;
+	jQuery.ajax({
+		type: "post",
+		dataType: "json",
+		url: "${base}/message/sendMessage.json", 
+		data: { friendId: _friendId, content: _content},
+		success: function(result) {
+			if(result.success) {
+				tb_remove();
+				jQuery.blockUI({ css: { 
+		            border: 'none', 
+		            padding: '15px', 
+		            backgroundColor: '#0061a6', 
+		            '-webkit-border-radius': '10px', 
+		            '-moz-border-radius': '10px', 
+		            opacity: .8, 
+		            color: '#fff' 
+		        },
+		        overlayCSS:  { 
+		            backgroundColor: 'none', 
+		            opacity:         0.6, 
+		            cursor:          'wait' 
+		        },
+		        message:"发送成功..."
+				}); 
+				setTimeout(jQuery.unblockUI, 1000); 
+				jQuery(".messageBox04").hide("fast");
+			}else {
+				//登录超时
+				if(result.msg == 20003) {
+					tb_remove();
+					jQuery.blockUI({ css: {  backgroundColor: '#0061a6',   padding: '15px',  opacity: .8,   color: '#fff'  },
+				        overlayCSS:  {  backgroundColor: 'none' },
+				        message:"登录超时，请重新&nbsp;&nbsp;<a style='color:#fff;font-size=12px; font-weight:bold;' onclick='openLoginDialog()'>登录&nbsp;</a>"
+						}); 
+					$('.blockOverlay').click($.unblockUI); 
+					return;
+				}
+				jQuery.blockUI({ css: {  backgroundColor: '#0061a6',   opacity: .8,   color: '#fff'  },
+			        overlayCSS:  {  backgroundColor: 'none' },
+			        message: result.msg
+					}); 
+			        setTimeout(jQuery.unblockUI, 2000); 
+			}
+			jQuery("#content").val("");
+		},
+		error: function(err) {
+			alert("操作失败");
+		},
+		complete: function() {
+		}
+	});
+}
+</script>		

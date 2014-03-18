@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>主页管理</title>
+#parse("common/common.html")
+  <link rel="stylesheet" href="${base}/template/admin/css/homePage/jquery-ui.css" />
+  <link rel="stylesheet" href="${base}/template/admin/css/homePage/tab.css" />
+  <link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+  <link href="${base}/template/admin/css/page.css" type="text/css"	rel="stylesheet" />
+  <link	href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css"	type="text/css" rel="stylesheet" />
+  <script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+  <script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+  <script src="${base}/template/admin/js/jquery.pager.js"></script>
+  <script>
+  $(function() {
+    $( "#tabs" ).tabs();
+    $( "#search" ).button({
+        icons: {
+            primary: "ui-icon-search"
+        }
+    });
+    $('#Pagination').pager({
+	      currPage: ${page.getCurrentPageNo()},
+	      pageNOName: "pageNo",
+	      form: "searchForm",
+	      pageCount: ${page.getTotalPageCount()},
+	      pageSize: ${page.getPageSize()}
+	});	
+  });
+  function reload(iframe,src){
+	$("#"+iframe).attr("src",src);
+  }
+  /*
+  function testDelLabel(){
+	  jQuery.ajax({
+			type : 'POST',
+			dataType : "json",
+			url : '${base}/label/saveUserLabel',
+			data : "eventid=402881c43ded8513013dee2c6971006b&labelName=我的标签呢",
+			success : function(data) {
+				alert(data.labelId + "---->" + data.label);
+				alert("修改成功!");
+			},
+			error : function(err) {
+				alert("操作失败");
+			},
+			complete : function() {
+				//alert("请求发送完成");
+			}
+		});
+  }
+  */
+  </script>
+</head>
+<body>
+<div id="tabs" class="grid_nav">
+  <ul>
+    <li><a href="#tabs-1" onclick="reload('Meniframe1','${base}/adminHomePageSetting/queryRecommendEvent');">活动推荐</a></li>
+    <li><a href="#tabs-2" onclick="reload('Meniframe1','${base}/adminHomePageSetting/queryRecommendSummary?type=0');">视频推荐</a></li>
+    <li><a href="#tabs-3" onclick="reload('Meniframe1','${base}/adminHomePageSetting/queryRecommendSummary?type=2');">文章推荐</a></li>
+    <li><a href="#tabs-4" onclick="reload('Meniframe1','${base}/adminHomePageSetting/queryLabels');">标签推荐</a></li>
+  </ul>
+<!-- 已推荐活动 -->
+  <div id="tabs-1">
+  	 <iframe width="100%" height="770;" id="Meniframe1" name="Meniframe1"  frameborder="0" scrolling="no" src="${base}/adminHomePageSetting/queryRecommendEvent"></iframe>
+  </div>
+  <div id="tabs-2">
+  	 <iframe width="100%" height="770;" id="Meniframe1" name="Meniframe1"  frameborder="0" scrolling="no" src="${base}/adminHomePageSetting/queryRecommendSummary?type=0"></iframe>
+  </div>
+  <div id="tabs-3">
+  	 <iframe width="100%" height="770;" id="Meniframe1" name="Meniframe1"  frameborder="0" scrolling="no" src="${base}/adminHomePageSetting/queryRecommendSummary?type=2"></iframe>
+  </div>
+  <div id="tabs-4">
+  	 <iframe width="100%" height="770;" id="Meniframe1" name="Meniframe1"  frameborder="0" scrolling="no" src="${base}/adminHomePageSetting/queryLabels"></iframe>
+  </div>
+</div>
+
+ 
+ 
+</body>
+</html>

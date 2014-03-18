@@ -1,0 +1,78 @@
+#set($posterUrl="src='${base}/images/noPic.jpg'" )
+#foreach($summary in $!{event.summaries})
+	#if($summary.type==3)
+		#set($posterUrl=("src='$!{summary.snapshot}'"))
+	#end
+#end
+
+
+<li>
+	<a href="${base}/event/d_$!{event.eventid}.html"><img $!{posterUrl} width="200" height="250" alt="" /></a>
+    <div class="acti_info">
+    	<a href="${base}/event/d_$!{event.eventid}.html"><h2 title="$!{event.topic}">$display.truncate($!{event.topic},26,"...")</h2></a>
+        <p>
+        	<span>
+        		分享嘉宾： 
+        		<a href="${base}/event/d_$!{event.eventid}.html" class="name" uid=''  point=''>$!{event.shareman}</a>
+        		#foreach($!{lectrue} in $loop.watch($!{event.lectrues})) 
+				   <a href="${base}/user/f_${lectrue.user.userid}.html" class="name tipALink" uid='${lectrue.user.userid}'  point='$!{event.eventid}'>$!{lectrue.user.name}</a>
+					
+					#if($loop.getCount() > 4)
+						#if(!$loop.isLast())...#end
+						$loop.stop() 
+					#end
+				#end
+        	</span>  <br />
+            地点：$!{event.place}<br />
+            时间： 
+			#set($format="yyyy年MM月dd日 HH:mm")
+			#if(${dateTool.year}==$!{dateTool.getYear($!{event.starttime})})
+				#set($format="MM月dd日 HH:mm")
+			#end
+			$dateTool.format($format,
+			$!{event.starttime}) - #if($dateTool.format("yyyyMMdd",
+			$!{event.starttime}) == $dateTool.format("yyyyMMdd",
+			$!{event.endtime})) $dateTool.format("HH:mm", $!{event.endtime})
+			#else $dateTool.format($format, $!{event.endtime}) #end
+ 	<br />
+            费用：<em>$!{number.number($!{event.expenseonline})}</em>元/人
+   <!--  #if($!{event.expenseoffline})，现场报名<em>$number.number($!{event.expenseoffline})</em>元/人#end -->
+    <br />
+            限额：<em>$!{event.quota}</em>人 <span class='greyfont'>（<em>$!{event.applyCount}</em> 人已报名）</span>
+        </p>
+        
+        #set($hasSignuped=false)
+			#set($audit=false)
+			#if($session.getAttribute("USER_CONTEXT"))
+    			#foreach($signupedUser in $event.userEvents)
+    				#if($session.getAttribute("USER_CONTEXT").userid==$signupedUser.user.userid)
+						#set($hasSignuped=true)
+						#if($signupedUser.audit==1)
+							#set($audit=true)
+						#end
+					#end
+    			#end
+			#end
+			
+			#if($hasSignuped)
+				#if($audit==false)
+				<a  class="sign br5 checking" rel="$!{event.eventid}">审核中</a>
+				#else
+				<a class="sign br5 checking" rel="$!{event.eventid}">已报名</a>
+				#end
+			#elseif($!{event.quota} <= $!{event.applyCount})
+				<a class="sign br5">报名人数已满</a>
+			#else
+				#if($event.state!=1)
+    			<a id="signupBtn" class="sign br5" rel="$!{event.eventid}">报名参加</a>
+				#else
+    			<a id="signupBtn" class="sign br5" rel="$!{event.eventid}">报名参加</a>
+				#end
+			#end
+        
+    </div>
+   
+</li>
+
+
+

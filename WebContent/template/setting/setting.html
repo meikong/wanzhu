@@ -1,0 +1,70 @@
+ 		#parse("common/include_web.html")
+ 		<script src="${base}/js/jquery.blockUI.js"></script>
+ 		<script type="text/javascript" src="${base}/js/setting/setting.js" ></script>
+ 		<script>
+ 			$(function(){
+ 				$("#editpwd_form input[type='password']").focus(function() {
+ 	    			$("#setErrorMsg").hide();
+ 	    		});
+ 			})
+ 		</script>
+	</head>
+	
+	<body>
+		<div id="loginNav" style="display:none;">
+			#parse("common/login.html")
+		</div>
+		#parse("common/head.html")
+		<div id="container" class="clear">
+    		<div class="login_wrapper clear">
+		    	<div class="login_left ">
+        			<h2>帐号设置</h2>      
+		        		<!-- 绑定第三方 -->	     
+		               <label class="setting_wb">新浪微博：	      
+	        	   		#if($!{user.oauthid} && $!{user.oauthid}!='' )
+		                    	<a href="$!{user.weibo}" target="_blank" class="link_b">$!{user.weibo}</a>
+		                  #else
+		                    	<a onclick="bindOauth()" class="link_b">绑定微博</a>
+		                    	#end	
+	        	   		</label>
+	        			 	
+	        			<!-- 修改密码 -->      
+      		  			<h3><strong>修改密码</strong></h3>
+      		  			
+        				#if($!{errorCode})
+		               		<label id="errorMsg" class="error" style="margin:-50px 0 0 100px;" >#errorMsg($!{errorCode})</label>
+		               	#end    
+		               
+		               	<form id="editpwd_form" action="${base}/user/rp.json" method="post">	   
+		                    <label id="setErrorMsg" class="error dn"></label>
+                            
+		                    <input type="hidden" id="userId" name="userId" value=$!{user.userid} />   
+		                     #if($!{http}=='out') <input type="hidden" name="oldpwd"  id="passwordO" value=$!{user.password} class="text-input" />#end         
+		                	#if($!{http}=='int') 
+                           	<div class="clear mb20">
+                           		<label>请输入旧密码：</label><input name="oldpwd" type="password" id="passwordO"  class="br5 inputStyle" />
+                           	</div>
+                           	#end<!-- <label class="error">请输入密码！</label>value=$!{user.password} -->
+                            <div class="clear mb20">
+                            	<label>请输入新密码：</label><input id="_newpwd" name="newpwd" type="password" class="br5 inputStyle" /><!-- <label class="error">请输入密码！</label> -->
+                            </div>
+                            <div class="clear mb20">
+                            	<label>请重输新密码：</label><input name="newrepwd" type="password" id="repassword" class="br5 inputStyle"/><!-- <label class="error">请输入密码！</label> -->
+                            </div>
+                            <input type="submit" value="设置" class="br5 btn_login setting_btn" /> 
+                        </form>    
+		        	
+		        </div>
+		        <div class="login_right">
+		            #if($!{adv})
+		    			<a href="$!{adv.link}"   target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+		    		#else
+		    			<a href="http://www.bokecc.com/" target="_blank"><img src="${base}/images/new/uc_login.jpg" alt="广告" width="300" height="225" /></a>
+	    		    #end  
+		        </div> 
+		    </div>
+		    
+		</div>
+		#parse("common/footer.html")
+	</body>
+</html>

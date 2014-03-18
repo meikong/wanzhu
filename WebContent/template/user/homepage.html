@@ -1,0 +1,243 @@
+#parse("common/include_web.html")
+<script src="${base}/js/jquery.blockUI.js"></script>
+<base href="${base}/" />
+	<link href="${base}/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet">
+		<script type="text/javascript" src="${base}/js/jquery-ui.js" ></script>
+<script type="text/javascript" src="${base}/js/user/homepage.js"></script>
+<script type="text/javascript" src="${base}/js/event/loading_sign_event.js"></script>
+<script type="text/javascript" src="${base}/js/common/upload-file.js"></script>
+<style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+</style>
+<style>
+.background { 
+	display: block; 
+	width: 100%; 
+	height: 100%; 
+	opacity: 0.4; 
+	filter: alpha(opacity=40); 
+	background:while; 
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	z-index: 2000; 
+} 
+
+.progressBar { 
+	border: solid 2px #86A5AD; 
+	background: white url(${base}/template/admin/images/progressBar_m.gif) no-repeat 10px 10px; 
+	display: block; 
+	width: 148px; 
+	height: 28px; 
+	position: fixed; 
+	top: 50%; 
+	left: 50%; 
+	margin-left: -74px; 
+	margin-top: -14px; 
+	padding: 10px 10px 10px 50px; 
+	text-align: left; 
+	line-height: 27px; 
+	font-weight: bold; 
+	position: absolute; 
+	z-index: 2001; 
+} 
+</style>
+</head>
+
+<body>
+#parse("common/head.html")
+<div id="container" class="clear">
+ 	<div class="content">
+    	<h2 class="mt0">我的主页</h2>            
+        	
+        <div class="degreeBox">个人资料完善度<span><em style="width:$!{user.completePercent};">$!{user.completePercent}</em></span></div>
+                
+        <div class="personalInfo clear">
+        	<div class="itemImg"><img id="user_portrait" src="$!{user.portrait}" width="120" height="120" /></div>
+        	<div class="itemInfo">
+            	<ul>
+                	<li class="f_name"><span><a id="editPersonal" class="link_b">编辑</a></span><label id="user_name">$!{user.name}</label>
+                 	<em id="user_sexName">
+                 	
+                 	#if($!{user.sexName}=="男")
+                 		<img src="${base}/images/icon_man02.gif"  /> 
+                 	#else
+                 		<img src="${base}/images/icon_woman02.gif" />
+                 	#end
+
+                 	</em>
+                	</li>
+                    <li class="inner"><label id="user_summary">$!{user.summary}</label></li>
+                    <!-- <li>手机：<label id="user_phone">$!{user.phone}</label></li>
+                    <li>邮箱：<label id="user_personalemail"><a href="mailto:$!{user.personalemail}">$!{user.personalemail}</a></label></li>
+                    --> 
+                    <li class="editBtn">
+                    #if($!{user.oauthid} && $!{user.oauthid}!="")
+                    <a href="$!{user.weibo}"><img src="${base}/images/icon_sina.gif" /></a>
+                    #else
+                    <a href="${base}/user/qs.html"><img src="${base}/images/icon_sina02.gif" /></a>
+                    #end
+                    </li>
+                </ul>	
+        	</div>
+        </div>
+                
+        <div class="editInfoBox" id="personal" style="display:none;">
+            <h3>编辑个人信息</h3>                  	
+            <div id="background" class="background"  style="display:none"></div> 
+			<div id="progressBar" class="progressBar"  style="display:none">上传中，请稍等...</div> 
+            <div class="editPersonalInfo">
+	            <form id="_portrait_form" name="portrait_form" method="post" action="${base}/user/up.json" enctype="multipart/form-data">
+	                <label>头像：<img id="_portrait_img" src="$!{user.portrait}" width="50" height="50" /></label>   
+	                    <input id="_portrait_file" type="file" name="portrait_file" />
+	                    <!--  <span class="btn2"><a onclick="openFileDialog()">选择文件</a></span>&nbsp;&nbsp; -->
+	                    <em>支持JPG、GIF、PNG 格式，大小不超过2MB</em>
+	                    
+	               	<a onclick="uploadPic('_portrait_form');"  class="br5 btn_login db">开始上传</a>
+	            </form>      
+	            <br />  
+	            <form id="edituser_form" method="post" action="${base}/user/eu.json">
+	                <div class="clear mb10">
+	                <label>姓名：</label><input name="name" type="text" onkeydown="if(event.keyCode==13){checkform();}" value="$!{user.name}" id="nameVali" placeholder="请输入你的真实姓名" class="br5 inputStyle" />
+	                </div>
+	                <div class="clear mb10">
+	                <label>性别：</label><input name="sex" type="radio" class="checkbox" value="2" #if($!{user.sex}=="2") checked="checked"  #end/> 男&nbsp;&nbsp;<input name="sex" type="radio" value="1" class="checkbox"  #if($!{user.sex}=="1") checked="checked"  #end/> 女
+	               <!--  <li><label>手机：</label><input name="phone" type="text"  value="$!{user.phone}"/></li>
+	                 <label>邮箱：</label><input name="personalemail" type="text" value="$!{user.personalemail}" /></li> -->
+	                </div>
+	                <div class="clear mb10">
+	                <label  class="intro">一句话介绍：</label><textarea name="summary" cols="50" rows="5" onkeydown="if(event.keyCode==13){checkform();}" onblur="if(this.value==''){this.value='这家伙很懒，什么也没写。';}" onfocus="if(this.value =='这家伙很懒，什么也没写。'){this.value='';}" id="summaryValid" class="text-input" >$!{user.summary}</textarea>
+	                </div>
+	                <input type="submit" value="保 存" class="br5 btn_login" />
+	           </form>        
+           </div>   
+        </div>
+<!-- <div class="popupBox02"><span class="btn2">设置当前公司</span></div> -->
+        <div class="editInfoBox job">
+        	<h3 class="clear"><a class="editABtn fr link_b">新增</a>工作经历</h3>
+            <div class="new_work dn">                  	
+                <form id="add_we_form" action="${base}/user/awe.json" method="post">
+                	<div class="clear mb20">
+                		<label>公司：</label><input id="_company" name="company" type="text"  onkeyup="showCTip();" placeholder="请输入你的公司名称" class="br5 inputStyle" />
+                	</div>
+                	<div class="searchListBox02">
+      	   				<ul id="ctip">
+      	   				</ul>
+      	   			</div>
+      	   			<div class="clear mb20">
+                		<label>职位：</label><input name="position" type="text" id="positionValid" placeholder="请输入你的职位名称" class="br5 inputStyle" />
+                	</div>
+                    <input type="submit" value="添加" class="br5 btn_login" />
+                </form>
+            </div>
+            <ul class="clear" id="workWrapper"> 
+				<!-- #set($size = 2)  -->
+				#foreach($data in $!{user.workExperiences}) 
+					<!-- #if(( $velocityCount - 1 )% $size == 0)
+					<div class="experienceList clear">  
+				#end  -->
+				<li id="box_$!{data.workexperienceid}" class="experienceBox">
+               		<img src="$!{data.company.logo}" width="50" height="50" />
+            	    <div class="itemInfo">
+                 		<h4 id="cur_$!{data.workexperienceid}" >$!{data.company.company} <span #if($!{data.current}!=1) style="display:none" #end cid=$!{data.workexperienceid}> 当前公司 </span></h4>
+                	 	<span>$!{data.position}</span> <a onclick="delWe('$!{data.workexperienceid}')" class="link_b">删除</a>
+                	</div>
+               	</li>
+				<!-- #if(($velocityCount) % $size == 0 || $velocityCount == $!{user.workExperiences.size()})
+					</div>
+		 		#end  -->
+ 				#end 
+			</ul> 
+        </div>
+                
+        <div class="editInfoBox education">
+        	<h3 class="clear"><a class="editABtn fr link_b">新增</a>教育经历</h3>
+            <div class="new_work  dn">   
+             <form id="add_ee_form" action="${base}/user/aee.json" method="post">
+            		<div class="clear mb20">
+            			<label>学校：</label><input name="school" type="text"  onkeyup="showSTip();" id="schoolValid" placeholder="请输入你的学校名称"  class="br5 inputStyle" />
+	              	</div>
+	              	<div class="searchListBox02">
+	      	   		<ul id="stip">
+	      	   		</ul>
+	      	   		</div>
+                 	<input type="submit" value="添加" class="br5 btn_login" />
+             </form>                
+            </div>
+            <ul class="clear" id="educationWrapper"> 
+				<!-- #set($size = 2)  -->
+				#foreach($data in $!{user.educationExperiences}) 
+					<!-- #if(( $velocityCount - 1 )% $size == 0)
+					<div class="experienceList clear">
+				#end  -->
+				<li id="box_$!{data.educationexperienceid}" class="experienceBox">
+              		<img src="$!{data.school.logo}" width="50" height="50" />
+           	        <div class="itemInfo">
+                		<h4>$!{data.school.school} </h4>
+               		 	<a onclick="delEE('$!{data.educationexperienceid}')" class="link_b">删除</a>
+                	</div>
+              	</li>
+				<!-- #if(($velocityCount) % $size == 0 || $velocityCount == $!{user.educationExperiences.size()})
+					</div>
+				 #end  -->
+				#end 
+			</ul>                    
+        </div>             
+                                
+        <div class="editInfoBox">
+               <h3>我的动态</h3>
+               <div id="activityOfMineContent">      
+					<!-- // -->
+               </div>
+               <div class="btnMore" style="display:none"><a onclick="more();">查看更多&raquo;</a></div>
+        </div>
+    </div>
+    <div class="sidebar">
+    	<dl class="opinion">
+           	<dt>
+               	<h2 style="margin-top:0;">好友列表</h2>
+               	<a href="${base}/relationship/friendsInDetail.html" class="more link_b dn"  id="moreFriends" >查看更多>></a>
+            </dt>
+            <dd>
+            	<ul class="apply_list" id="friendsContent">
+        		<!-- // -->
+            	</ul>
+            </dd>
+        </dl>
+    	<dl class="opinion">
+           	<dt>
+               	<h2>报名的活动</h2>
+            </dt>
+            <dd>
+            	<ul id="sues"></ul>
+            </dd>
+        </dl>
+        
+  </div>
+</div>
+<div id="loginNav" style="display:none;">
+#parse("common/login.html")
+</div>
+#parse("common/footer.html")
+
+<script type="text/javascript">
+		var currentPage=1;
+		var pageSize = 5;
+		$(function(){
+			//我的个人动态
+			activityOfMine(currentPage,pageSize);
+			//我的好友
+			friends();
+			//参加的活动
+			loadingSignedEvents("#sues", '$!session.getAttribute("USER_CONTEXT").getUserid()');
+			
+			if($('#workWrapper li').length == 0){
+				$('#workWrapper').parent().children('.new_work').removeClass('dn');
+			}
+			if($('#educationWrapper li').length == 0){
+				$('#educationWrapper').parent().children('.new_work').removeClass('dn');
+			}
+		});
+</script>
+</body>
+</html>

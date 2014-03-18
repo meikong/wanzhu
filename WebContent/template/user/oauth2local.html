@@ -1,0 +1,41 @@
+#parse("common/include_web.html")
+<script type="text/javascript" src="${base}/js/user/oauth2local.js"></script>
+<style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+</style>
+</head>
+
+<body>
+#parse("common/head.html")
+
+<div id="container" class="clear">
+ 	<div class="login_wrapper clear">
+   		<div class="login_left ">
+        	<h2>完善资料</h2>            
+        	<div class="editBox registerBox perfectInfo">
+        		<h3><strong>你好！欢迎来到3W。请补充你的个人信息，完成3W帐号创建。</strong></h3>
+
+                <form action="${base}/ologin/bla.json" id="bind_form" method="post">
+				<input type="hidden"  name="oauthid" value="$!{oauth.oauthid}"/>
+				<input type="hidden"  name="weibo" value="$!{oauth.weibo}"/>
+				<input type="hidden"  name="portrait" value="$!{oauth.portrait}"/>
+                <label>姓名：<input name="name" type="text" value='请输入真实姓名.' class="br5 inputStyle" onclick="if(value=='请输入真实姓名.'){value='';this.style.color='#000'}" onblur="if(!value){value='请输入真实姓名.';this.style.color='#999'}" /></label>
+                <label>邮箱：<input name="email" type="text" value='邮箱格式：you@163.com' class="br5 inputStyle" onclick="if(value=='邮箱格式：you@163.com'){value='';this.style.color='#000'}" onblur="if(!value){value='邮箱格式：you@163.com';this.style.color='#999'}"/></label>
+                <label>密码：<input name="password" type="password" class="br5 inputStyle" /></label><label class="error" id="errorMsg" style="display:none;"></label>
+                <input type="submit" value="立即创建" class="br5 btn_login setting_btn"/>       
+                </form>
+            </div>
+        </div>
+		<div class="login_right">    
+    			#if($!{adv})
+	    		<a href="$!{adv.link}"   target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+	    		 #else
+	    	 	 <a href="http://www.bokecc.com/" target="_blank"><img src="${base}/images/new/uc_login.jpg" alt="广告" width="300" height="225" /></a>
+    		    #end
+    	</div>
+  	</div>
+</div>
+
+#parse("common/footer.html")
+</body>
+</html>

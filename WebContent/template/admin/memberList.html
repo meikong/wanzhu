@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>会员列表</title>
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/page.css" type="text/css"	rel="stylesheet" />
+<script src="${base}/template/admin/js/jquery.pager.js"></script>
+<script src="${base}/template/admin/js/merberlist.js"></script>
+</head>
+<script>
+	$(function() {
+		$('#Pagination').pager({
+	      currPage: ${page.getCurrentPageNo()},
+	      pageNOName: "pageNo",
+	      form: "searchForm",
+	      pageCount: ${page.getTotalPageCount()},
+	      pageSize: ${page.getPageSize()}
+	    });
+	});
+	
+	 function onAudit(id,audit) {
+     	//提交
+     	jQuery.ajax({
+     		  type: 'POST',
+     		  url: '${base}/adminuser/audituser',
+     		  data:"userId="+id+"&audit="+audit,
+     		  success: function(data) {
+     			  if(data == 0) {//成功
+     				  document.getElementById("flag").value="1";
+     				  $("#viewDialog").dialog( "close" );
+     			  	  return true;
+     			  } 
+     			 if(data == 0) {//成功
+     				  alert("操作失败");
+    			  	  return false;
+    			  } 
+     			  if(data == 3) {
+     				  alert("登录超时!");
+     				  document.getElementById("logout").submit();
+     			  	  return false;
+     			  } 
+     		  },
+     		  error: function(err) {
+     			  alert("操作失败");
+     			  setTimeout(jQuery.unblockUI, 50); 
+     		  }
+     	});
+     }
+	 function onDisable(id,disable) {
+	     	//提交
+	     	jQuery.ajax({
+	     		  type: 'POST',
+	     		  url: '${base}/adminuser/disableUser',
+	     		  data:"userId="+id+"&disable="+disable,
+	     		  success: function(data) {
+	     			  if(data == 0) {//成功
+	     				  document.getElementById("flag").value="1";
+	     				 $( "#disableConfirm" ).dialog( "close" );
+	     			  	  return true;
+	     			  } 
+	     			 if(data == 0) {//成功
+	     				  alert("操作失败");
+	    			  	  return false;
+	    			  } 
+	     			  if(data == 3) {
+	     				  alert("登录超时!");
+	     				  document.getElementById("logout").submit();
+	     			  	  return false;
+	     			  } 
+	     		  },
+	     		  error: function(err) {
+	     			  alert("操作失败");
+	     			  setTimeout(jQuery.unblockUI, 50); 
+	     		  }
+	     	});
+	     }
+	</script>
+<body>
+<div class="grid_nav">
+<form id="searchForm" action="" method="post">
+<div class="grid_head"> 
+	&nbsp;
+ <div style="float:right; margin-right:10px;">
+		<select name="au" onchange="$('#searchForm').submit();">
+		 	<option value="2" #if($!{au}!="1"&&$!{au}!="0")selected="selected"#end>[ 是否受限 ]</option>
+		 	<option value="1" #if($!{au}=="1")selected="selected"#end>不受限</option>
+		 	<option value="0" #if($!{au}=="0")selected="selected"#end>受限</option>
+		 </select>
+		 <select name="ac" onchange="$('#searchForm').submit();">
+		 	<option value="2" #if($!{ac}!="1"&&$!{ac}!="0")selected="selected"#end>[ 是否激活 ]</option>
+		 	<option value="1" #if($!{ac}=="1")selected="selected"#end>激活</option>
+		 	<option value="0" #if($!{ac}=="0")selected="selected"#end>未激活</option>
+		 </select>
+		 &nbsp;&nbsp;<input type="text" name="content" value="$!{content}" class="text ui-corner-all"/>&nbsp;&nbsp;
+		 <button id="search" onclick="$('#searchForm').submit();">搜索</button>
+ </div>
+</div>
+    <table width="100%" border="0" class="grid">
+      <tr>
+      	<th width="2% nowrap="nowrap">&nbsp;</th>
+        <th width="20%" nowrap="nowrap">姓名</th>
+        <th width="3%" nowrap="nowrap">性别</th>
+        <th width="15%" nowrap="nowrap">邮箱</th>
+        <th width="13%" nowrap="nowrap">注册时间</th>
+        <th width="3%" nowrap="nowrap">是否受限</th>
+        <th width="3%" nowrap="nowrap">是否激活</th>
+        <th width="3%" nowrap="nowrap">好友数</th>
+        <th width="3%" nowrap="nowrap">活动数</th>
+        <th width="20%" nowrap="nowrap">简介</th>
+        <th>操作</td>
+      </tr>
+      #foreach($merber in $!{page.result} )
+      <tr>
+      	<td>$velocityCount</td>
+        <td title="$!{merber.name}">$!{merber.name}</td>
+        <td>#if($!{merber.sex}=="0")保密#end
+			#if($!{merber.sex}=="1")女#end
+			#if($!{merber.sex}=="2")男#end
+		</td>
+        <td title="$!{merber.email}">$!{merber.email}</td>
+        <td>$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{merber.createtime})</td>
+        <td id="tds$!{merber.userid}">#if($!{merber.state}=="0")受限#end
+			#if($!{merber.state}=="1")<font color="green">不受限</font>#end</td>
+        <td id="tda$!{merber.userid}">#if($!{merber.activated}=="0")未激活#end
+			#if($!{merber.activated}=="1")<font color="green">激活</font>#end</td>
+			
+		<td id="tda$!{merber.userid}">$!{merber.friendscount}</td>
+		<td id="tda$!{merber.userid}">$!{merber.eventscount}</td>
+			
+        <td title="$!{merber.summary}">
+        #set($str=$!{merber.summary}) 
+   			#if($str.length()>20)
+   			     #set($str=$str.substring(0,20))
+   			     $str ...
+   			 #else
+     			$!{merber.summary}
+  			  #end
+        </td>
+        <td nowrap="nowrap" id="tdc$!{merber.userid}"><a href="#" onclick="check('$!{merber.userid}','${base}/adminuser/queryuser','$!{merber.state}')">查看</a>&nbsp;|&nbsp;
+        #if($!{merber.state}=="0")<a href="#" onclick="state('$!{merber.userid}',1,'设为不受限',1,'$!{merber.state}','$!{merber.name}')">设为不受限</a>&nbsp;|&nbsp;#else<a href="#" onclick="state('$!{merber.userid}',0,'设为受限',0,'$!{merber.state}','$!{merber.name}')">设为受限</a>&nbsp;|&nbsp;#end
+        #if($!{merber.activated}=="1")<a href="#" onclick="disable('$!{merber.userid}',0,'禁用',0,'$!{merber.state}','$!{merber.name}')">禁用</a>#else<a href="#" onclick="disable('$!{merber.userid}',1,'激活',1,'$!{merber.state}','$!{merber.name}')">激活</a>#end
+        </td>
+      </tr>
+      #end
+    </table>
+    </form>
+</div>
+  <form action="${base}/lagouAdmin/logout" id="logout" target="_top"></form>
+<input id="flag" value="0" type="hidden"></input>
+<div id="Pagination" class="pageNum clearfix"></div>
+<div id="viewDialog" title="会员信息"></div>
+<div id="disableConfirm" title="禁用会员">
+</div>
+<div id="stateConfirm" title="操作提示">
+</div>
+<div id="checkDialog" title="会员信息"></div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>发送邮件</title>
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<script type="text/javascript" src="${base}/template/admin/js/ckeditor/ckeditor.js"></script>
+<script src="${base}/js/jquery.form.js" type="text/javascript" ></script>
+</head>
+<script>
+	function UrlEncode(str)
+	{ 
+	    var ret=""; 
+	    var strSpecial="!\"#$%&()*+,/:;<=>?[]^`{|}~%"; 
+	    for(var i=0;i<str.length;i++)
+	    { 
+	        var chr = str.charAt(i);
+	        var c=str.charCodeAt(i); 
+	        if(chr==" ") 
+	            ret+="+"; 
+	        else if(strSpecial.indexOf(chr)!=-1) 
+	            ret+="%"+c.toString(16); 
+	        else 
+	            ret+=chr;
+	    } 
+	    return ret; 
+	}
+	$(function() {				   
+		 $( "#save" ).button({
+            icons: {
+                primary: "ui-icon-check"
+            }
+        });	 
+		$( "#cancel" ).button({
+            icons: {
+                primary: "ui-icon-cancel"
+            }
+        });	
+		$( "#send" ).button({
+            icons: {
+                primary: "ui-icon-extlink"
+            }
+        });	
+		$("#send").click(function(){
+			if ($("input[name='subject']").val().length==0) {
+		    		alert("主题不能为空!");
+		    		return false;
+		    	} 
+			var id=$("#hiddenID").val();
+			var subject=$("input[name='subject']").val();
+			var au=$("select[name='au']").val();
+			var ac=$("select[name='ac']").val();
+			var type=$("select[name='type']").val();
+			var content=CKEDITOR.instances.emailContent.getData();
+			content=UrlEncode(content);
+			var url=$("#formSubmit").attr("action");
+			jQuery.ajax({
+		         type: 'POST',
+		         dataType:'json',
+		         url: url,
+		         data:'id='+id+'&subject='+subject+'&au='+au+'&ac='+ac+'&type='+type+'&content='+content,
+		         success: function(data){
+	 		    		if(data.result=='success')
+	 		    			alert("邮件发送任务已经提交到后台执行。");
+	 		    		else
+	 		    			alert("邮件发送任务提交到后台失败，请从日志中寻找原因。");
+	 		    	}
+		         });
+		});
+// 		$('#formSubmit').ajaxForm({
+// 			type:'POST',
+// 			dataType:'json',
+// 			data:"content="+CKEDITOR.instances.emailContent.getData(),
+// 		    beforeSubmit: function(a,f,o) {
+// 		    	if ($("input[name='subject']").val().length==0) {
+// 		    		alert("主题不能为空!");
+// 		    		return false;
+// 		    	} 
+// 		    },
+// 		    success: function(data){
+// 		    		if(data.result=='success')
+// 		    			alert("发送成功!");
+// 		    		else
+// 		    			alert("发送失败,请重试...");
+// 		    	}
+// 		    });
+	});		
+	</script>
+<body>
+<form action="${base}/adminmail/$!{formAction}" id="formSubmit">
+<input type="hidden" id="hiddenID" name="id" value="$!{eventId}"/>
+<div class="info" style="width:90%; margin:5px auto;">
+  <h5 class="clearfix" style="border-bottom:1px #060 solid">发送邮件 #if($!{eventId}!="" && $!{eventId}) &nbsp;&nbsp;<a href="${base}/eventadmin/queryEvents" >返回</a>#end</h5>
+  <ul class="messageBox">
+    <li>
+      <label>主题:</label>
+      <input type="text" class="text ui-corner-all" size="40" name="subject"/>
+    </li>
+    #if($!{toSendAlls})
+   	<li>
+      <label>收件人[所有会员]:</label> 
+      <select name="au">
+        <option value="2">全部</option>
+        <option value="0">受限</option>
+        <option value="1">不受限</option>
+       </select>
+       <select name="ac">
+        <option value="2">全部</option>
+        <option value="1">激活</option>
+        <option value="0">未激活</option>
+       </select>
+    </li>  
+    #else
+    <li>
+      <label>收件人[报名人员]:</label> 
+       <select name="type">
+        <option value="">报名人员</option>
+        <option value="1">已签到人员</option>
+        <option value="2">未签到人员</option>
+        <option value="3">已审核通过人员</option>
+        <option value="4">未审核通过人员</option>
+       </select>
+    </li>
+    #end       
+  </ul>
+  <div style="margin-left:120px;">
+    <textarea id="emailContent" name="emailContent"  rows="12" cols="120" class="ckeditor" ></textarea>
+  </div>
+</div>
+ 
+<div style="margin-left:180px; margin-top:20px;">
+    <button type="button" id="send">发送</button>
+<!--     <a id="cancel" href="#">取消</a> -->
+  </div>
+ </form> 
+</body>
+</html>

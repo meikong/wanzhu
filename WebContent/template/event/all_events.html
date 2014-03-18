@@ -1,0 +1,122 @@
+#parse("common/include_web.html")
+<script type="text/javascript" src="${base}/js/event/loading_comings.js"></script>
+<script type="text/javascript" src="${base}/js/event/loading_pasts.js"></script>
+<script type="text/javascript">
+$(function(){
+	Date.prototype.format = function(fmt) 
+	{ //author:
+	  var o = { 
+	    "M+" : this.getMonth()+1,                 //月份 
+	    "d+" : this.getDate(),                    //日 
+	    "h+" : this.getHours(),                   //小时 
+	    "m+" : this.getMinutes(),                 //分 
+	    "s+" : this.getSeconds(),                 //秒 
+	    "q+" : Math.floor((this.getMonth()+3)/3), //季度 
+	    "S"  : this.getMilliseconds()             //毫秒 
+	  }; 
+	  if(/(y+)/.test(fmt)) 
+	    fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length)); 
+	  for(var k in o) 
+	    if(new RegExp("("+ k +")").test(fmt)) 
+	  fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length))); 
+	  return fmt; 
+	}
+	
+	//加载标签
+	jQuery.ajax({
+	   type:"POST",
+	   url:"${base}/label/lc.json",
+	   success: function(result){
+	   	   var allCount = 0;
+		   for(var i=0; i<result.length; i++) {
+		   	   allCount += result[i].eventCount;
+			   if("$!{labelId}" == result[i].labelId) {
+ 			   	$("#labels").append("<li class=\"current\"><a href=\"${base}/event/ae_"+result[i].labelId+".html\">"+result[i].label+"<span>（"+result[i].eventCount+"个活动）</span></a></li>")
+			   } else {
+				   if(i%2==0) {
+					   $("#labels").append("<li class=\"special\"><a href=\"${base}/event/ae_"+result[i].labelId+".html\">"+result[i].label+"<span>（"+result[i].eventCount+"个活动）</span></a></li>")
+				   } else {
+					   $("#labels").append("<li><a href=\"${base}/event/ae_"+result[i].labelId+".html\">"+result[i].label+"<span>（"+result[i].eventCount+"个活动）</span></a></li>")
+				   }
+			   }
+		   }
+		   
+		   $("#allCount").html("（"+allCount+"个活动）");
+	   }
+	});
+	
+	$("#comingsMoreBtn a").click(function() {
+		loadComings($!{comings.pageNo}, $!{comings.pageSize}, 0, "$!{labelId}", $("#scrollContent"), $("#loadingComming"), $("#comingsMoreBtn"));
+	});
+	$("#pastsMoreBtn a").click(function() {
+		loadPasts($!{pasts.pageNo}, $!{pasts.pageSize}, 0, "$!{labelId}", $("#pastsContent"), $("#loadingPast"), $("#pastsMoreBtn"));
+	});
+});
+ 
+</script>
+</head>
+
+<body>
+#parse("common/head.html")
+<div id="container" class="clear">
+    <div class="content">
+    	<dl>
+    		<dt>
+    			<h2 class="mt0">近期将要开始的活动</h2>
+        	</dt>
+        	<dd>
+		        <div id="scrollContent">
+		           	#if($comings.result.size() <= 0)
+		           		<div class="promptBox">暂无活动</div> 
+		           	#end
+		           	#foreach($event in $comings.result)
+		           		#parse("event/tp_coming_list.html")
+		            #end
+		        </div>          
+		        #if(${comings.isHasNextPage()})
+		        <div class="btnMore eventBtnMore" id="comingsMoreBtn"><a href="javascript:void(0);" >查看更多&raquo;</a></div>
+		        #end
+		        <div id='loadingComming' class="loading dn"><img src="${base}/images/loading.gif" />加载中......</div>  
+		    </dd>
+		</dl> 
+        <dl>
+    		<dt>
+    			<h2>往期活动</h2>
+        	</dt>
+        	<dd>
+		    	<div id="pastsContent">
+		           	#if($pasts.result.size() <= 0)
+	            		<div class="promptBox">暂无活动</div> 
+	            	#end
+	            	#foreach($event in $pasts.result)
+	            		#parse("event/tp_past_list.html")
+	                #end
+		        </div>
+		        <span id="flag"></span>
+		        #if(${result.isHasNextPage()})
+		          <div class="btnMore eventBtnMore" id="btnMore"><a>查看更多&raquo;</a></div>
+		        #end
+		          <div id="loading" class="loading dn"><img src="${base}/images/loading.gif" />加载中......</div>  
+		    </dd>
+		</dl>
+    </div>
+	<div class="sidebar">               
+        <div class="tagsListR mt0 br5">
+    		<h2>活动标签</h2>
+    		<ul id="labels" class="nodot">
+	    		<li #if(${labelId}=="0") class="current" #end><a href="${base}/event/ae_0.html">全部<span id="allCount"></span></a></li>
+	    	</ul>
+    	</div>
+        <!-- <div class="rightBox02">
+    		<h3>活动标签</h3>
+            <div class="content">
+            	<ul id="labels">
+            		<li #if(${labelId}=="0") class="current" #end><a href="${base}/event/ae_0.html">全部<span id="allCount"></span></a></li>
+            	</ul>
+            </div>
+        </div> -->
+    </div>
+</div>
+#parse("common/footer.html")
+</body>
+</html>

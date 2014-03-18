@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+	<context:annotation-config />
+
+	<!-- 把标记了@Controller注解的类转换为bean -->
+	<context:component-scan base-package="com.wanzhu" use-default-filters="false" >
+		<context:include-filter type="regex" expression=".*Controller$"/>  
+	</context:component-scan>
+	
+	<bean class="org.springframework.web.servlet.view.XmlViewResolver"
+		p:order="0" p:location="/WEB-INF/spring-views.xml" />
+	
+	<!-- 启动Spring MVC的注解功能，完成请求和注解POJO的映射 -->
+	<bean
+		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+
+	<!-- velocity视图解析器 -->
+	<bean id="velocityViewResolver"
+		class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+		<property name="cache" value="false" />
+		<property name="prefix" value="/" />
+		<property name="suffix" value=".html" />
+		<property name="contentType">
+			<value>text/html;charset=UTF-8</value>
+		</property>
+		<property name="dateToolAttribute">
+      		<value>dateTool</value>
+	    </property>
+	    <property name="numberToolAttribute">
+			<value>numberTool</value>
+	    </property>
+	    <property name="toolboxConfigLocation">
+			<value>/WEB-INF/toolbox.xml</value>
+	    </property>
+	</bean>
+
+	<!-- velocity环境配置 -->
+	<bean id="velocityConfig"
+		class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		<!-- velocity配置文件路径 -->
+		<property name="configLocation" value="/WEB-INF/velocity.properties" />
+		<!-- velocity模板路径 -->
+		<property name="resourceLoaderPath" value="/template/" />
+	</bean>
+
+	<!-- jsp视图解析器 
+	<bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+-->
+
+	<mvc:view-controller path="/" view-name="index" />
+	<mvc:view-controller path="/login.html" view-name="login" />
+	<mvc:view-controller path="/register.html" view-name="user/register" />
+	<mvc:view-controller path="/forgetpassword.html" view-name="user/forgetPassword" />
+	<mvc:view-controller path="/admin" view-name="admin/index" />
+	<mvc:view-controller path="/about.html" view-name="3W/about"/>
+	<mvc:view-controller path="/shareholderList.html" view-name="3W/shareholderList"/>
+	
+	
+	<!-- 文件上传 --> 
+	<bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+          p:defaultEncoding="UTF-8"
+          p:maxUploadSize="20000000"
+          p:uploadTempDir="upload/temp"/>
+
+		<!-- 静态资源映射 -->
+	<mvc:annotation-driven />
+	<mvc:default-servlet-handler />
+	<bean id="rpe" class="com.wanzhu.base.ResourcePathExposer"
+		init-method="init" />
+	<mvc:resources mapping="#{rpe.resourceRoot}/**" location="/"
+		cache-period="31536000" />
+		
+	<mvc:interceptors>
+        <mvc:interceptor>
+        	<mvc:mapping path="/*/**.json"/>
+            <bean class="com.wanzhu.filter.LoginIntercepter" />
+        </mvc:interceptor>
+        <mvc:interceptor>
+        	<mvc:mapping path="/**"/>
+        	<bean id="openSessionInViewInterceptor" class="org.springframework.orm.hibernate3.support.OpenSessionInViewInterceptor" >
+        		<property name="sessionFactory" ref="sessionFactory" />
+        	</bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+</beans>

@@ -1,0 +1,45 @@
+<dl class="opinion" id="hotTopics">
+	<dt>
+    	<h2>热门话题</h2>
+    </dt>
+    <dd>
+    	
+    </dd>
+</dl>
+
+<script>
+	$(function(){
+		$.ajax({
+			type: "GET",
+			dataType: "json",
+			url: ctx + '/discuz/queryHotTopics.json',
+	  	   	success: function(result){
+		  		 if(result.success) {
+						var topics = result.content;
+						var html = "";
+						for(var i = 0; i < topics.length; i++) {
+							var portrait =  topics[i].portrait;
+							if(portrait == ""){ 
+								portrait = ctx+"/images/icon_man.png";
+							}
+							if(i==4){
+								html += "<div class=\"applyed no_btm\">"+
+					            		"<img src=\""+ portrait+"\" width=\"44\" height=\"44\" alt=\"\" />"+
+					            		"<div class=\"applyed_info\">"+
+					                    "<div class=\"clear\">"+ topics[i].username+"<a href=\""+ctx+"/discuz/t_"+topics[i].topicid+".html\" class=\"ar\">回复（<span>"+topics[i].remarkcount+"</span>） </a></div>"+
+					                    "<a href=\""+ctx+"/discuz/t_"+topics[i].topicid+".html\">"+topics[i].content+"</a></div></div>";
+							}else{
+								html += "<div class=\"applyed\">"+
+							            "<img src=\""+ portrait+"\" width=\"44\" height=\"44\" alt=\"\" />"+
+							            "<div class=\"applyed_info\">"+
+							            "<div class=\"clear\">"+ topics[i].username+"<a href=\""+ctx+"/discuz/t_"+topics[i].topicid+".html\" class=\"ar\">回复（<span>"+topics[i].remarkcount+"</span>） </a></div>"+
+							            "<a href=\""+ctx+"/discuz/t_"+topics[i].topicid+".html\">"+topics[i].content+"</a></div></div>";
+							}
+						
+						}
+						$("#hotTopics dd").append(html);
+		  		 }
+	  	   	}
+		})
+	})
+</script>

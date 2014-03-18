@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv='Expires' content='0'>
+<meta http-equiv='Pragma'  content='no-cache'>
+<meta http-equiv='Cache-Control'  content='no-cache'>
+#parse("common/include.html")
+<base href="${base}/" />
+<title>3W-互联网的圈子</title>
+<meta content="3W是一个关注职业通道的一个圈子" name="description">
+<meta content="互联网圈子, 互联网活动, 互联网沙龙, 投资, 创业, IT, 商务社交, 职场, 人脉, 投资人, 猎头, VC, 移动互联网, O2O, LBS, 社交, 微信, 融资, 资本, 教育, 公开课, 电子商务, 职业生涯, 云计算, 游戏, 产品设计, 创业, 想创业, 投资, 融资, 创投媒体, 创业公司, 科技新闻, 移动互联网, 资讯平台, 开放日, 互联网创业" name="keywords">
+<style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+</style> 
+<script type="text/javascript">
+var scrollStart = 2;
+//全部数据是否加载完毕。
+var isLoadComplete = false;
+var scrollCount=0;
+var pageSize = 15;
+$(function(){
+	//滚动加载
+	$(window).bind("scroll", function(){
+		if(!isLoadComplete)
+		{
+			$('#scrollContent').each(function(){
+					if(scrollCount >=2) {
+							$('#show').hide();  
+							$(".btnMore").show();
+							return ;
+					}				
+					var fold = $(window).height() + $(window).scrollTop();
+					if(fold >= $('#show').offset().top+100)
+					{						
+						$('#show').show();
+						loadActs(scrollStart,pageSize);
+					}
+				});
+		}	
+		});	
+	});
+	
+	function loadActs(currentPage,pageSize)
+	{
+		jQuery.ajax({
+			type : 'POST',
+			dataType : "json",
+			url : '${base}/activity/queryActivitiesOfFriend.json',
+			data : "currentPage="+currentPage+"&pageSize="+pageSize,
+			success : function(data) {
+					//登录超时
+					if(data.msg == 20003)
+					{
+						showLoginDialog(loginsuccess,null,true);
+						return;
+					}
+					var result = data.content.result;
+					if(data.success && null != result && result.length>0)
+					{
+						var portrait = "";
+						for(var vo in result)
+						{
+							portrait =  result[vo].portrait;
+							if(""== portrait || null == portrait) portrait = ctx+"/images/icon_man.png";
+							
+							var appendContent = "<div class=\"feedBox02 clearfix\">"
+			            	+"<div class=\"itemImg\"><a href=\"${base}/user/f_"+result[vo].userId+".html\"  target=\"_blank\"><img src=\""+portrait+"\" width=\"50\" height=\"50\" /></a></div>"
+			            	+"<div class=\"itemInfo\">"
+			            	+"<h4 class=\"clearfix\"><span>"+getDateDiff(""+result[vo].time+"")+"</span><a href=\"${base}/user/f_"+result[vo].userId+".html\" target=\"_blank\">"+result[vo].username+"</a></h4>"
+			            	+result[vo].content+"</div></div>";
+							$("#scrollContent").append(appendContent);
+						}
+						scrollCount++;
+					    scrollStart++;
+					    
+					    //是否显示更多按钮
+					    if(data.content.start+result.length == data.content.totalCount)
+					    {
+					    	$(".btnMore").hide();
+							isLoadComplete = true;
+					    }
+					}
+			},
+			error : function(err) {
+				alert("操作失败");
+			},
+			complete : function() {
+				$('#show').hide();
+			}
+		});
+	}
+	//查看更多
+	function more()
+	{
+		loadActs(scrollStart,pageSize);
+	}
+	//登录成功回调
+	function loginsuccess(data)
+	{
+		if(data.success)
+			closeLoginDialog();
+	}
+</script>
+</head>
+<body>
+#parse("common/head.html")
+<div id="pageBody" class="clearfix">
+	<div class="mainBody">
+    	<div class="mainBox02">
+        	<h3>好友近期动态</h3>
+        	<div class=""  id="scrollContent">
+        		#foreach($vo in $!{result.content.result})
+        			   #set($portrait=$!{vo.portrait})
+        				#if(!$!{vo.portrait})
+        					 #set($portrait="${base}/images/icon_man.png")
+        				#end
+        			<div class="feedBox02 clearfix">
+                		<div class="itemImg"><a href="${base}/user/f_$!{vo.userId}.html"  target="_blank"><img src="$!{portrait}" width="50" height="50" /></a></div>
+                		<div class="itemInfo">
+                    		<h4 class="clearfix"><span>
+                    			#set($time=$dateTool.format("yyyy-MM-dd HH:mm:ss", $!{vo.time}))
+                    			<script>document.write(getDateDiff("$!{time}"));</script>
+                    			</span>
+                    			<a href="${base}/user/f_$!{vo.userId}.html" target="_blank">$!{vo.username}</a>
+                    		</h4>
+                        	$!{vo.content}          
+                		</div>
+               	    </div>
+        		#end
+            </div>
+            <div id='show'  style="display:none"><img src="${base}/images/loading.gif" />加载中......</div>  
+            <div class="btnMore" style="display:none"><a onclick="more();">查看更多>></a></div>
+        </div>
+    </div>
+    <div class="sideBar">
+    	<div class="rightBox02">
+    		#if($!{adv})
+	    		<a href="$!{adv.link}"  target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+	    		 #else
+	    		 <a><img src="${base}/images/rightAds.jpg" alt="广告" width="300" /></a>
+    		#end
+    	</div>
+  </div>
+  
+  <div id="loginNav" style="display:none;">
+		#parse("common/login.html")
+  </div>
+
+</div>
+#parse("common/footer.html")
+</body>
+</html>

@@ -1,0 +1,126 @@
+#parse("common/include_web.html")
+<script type="text/javascript" src="${base}/js/user/register.js" ></script>
+<style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+
+</style>
+<script type="text/javascript">
+		$(function(){
+			jQuery.ajax({
+				type : 'POST',
+				dataType : "json",
+				url : ctx+'/user/adv?type=8',
+				data : {},
+				success : function(data) {
+						var adv = data.content;
+						if(data.success && adv !=null)
+						{
+							$("#advImg").html("<a href=\""+adv.link+"\"    target=\"_blank\"><img src=\""+adv.url+"\" alt=\""+adv.memo+"\" width=\"300\" /></a>");
+						}
+				},
+				error : function(err) {
+				},
+				complete : function() {
+				}
+			});
+		});
+    </script>
+</head>
+
+<body>
+	<!-- <div id="loading" class="loadingL"><span><img src="${base}/images/loading.gif" />处理中......</span></div>   -->
+	<div id="register" style="display:none;">
+	        <div class="registerPop">
+	            <h4>邮箱验证后，即可完成注册！</h4>
+	            <input type="hidden"  id="userid_hide" />       
+	            <div>只需登录邮箱 <label id="tomail"></label> 点击链接激活即可。</div>
+				<a id="tomaillink" class="btn_bbg" target="_blank">登录邮箱激活</a>    
+	            <div class="noMsg">
+	            	<h5>还没有收到验证邮件？</h5>
+	            	1、尝试到广告邮件、垃圾邮件目录里找找看<br />
+	        		<a href="javascript:resendmail()" class="link_ub">2、再次发送验证邮件</a>
+	        	</div>
+	        </div>
+	</div>
+	<div id="loginNav" style="display:none;">
+	#parse("common/login.html")
+	</div>
+
+	<div id="header">
+    	<div class="wrapper">
+    		<a href="${base}/index.html" class="logo">3W</a>
+        </div>
+    </div>
+    <div id="container" class="clear"> 
+	  	<div class="login_wrapper clear">
+	    	<div class="login_left ">
+	    		<h2>快速注册拉勾</h2>
+	    		<div class="mb10">使用拉勾合作网站帐号快速注册：</div>
+		    	<div class="clear">
+		    		<span class="fl">使用微博帐号注册 </span>
+		    		<a href="${base}/ologin/auth/sina" class="weibo_register br3">注  册</a>
+				</div>
+	        	<h2 style="margin-top:50px;">直接注册</h2>
+	          	<form id="registerform" action="${base}/user/register" method="post">
+	          		<label id="errorMsg" class="error" style="display:none;"></label>
+	          		<div class="clear mb20">
+	          			<label>姓　名  </label><input name="name" tabindex="1" type="text" id="nameV" value="" class="inputStyle br5" placeholder="请输入你的真实姓名" />
+	          		</div>
+	          		<div class="clear mb20">
+	          			<label>邮　箱  </label><input type="text" name="email" value="$!{cookie.get('3wcoffeeuseremail').value}" id="emailV" placeholder="输入邮箱帐号" class="br5 inputStyle" tabindex="2" />
+	          			<label id="_hadr" class="error" style="display: none;">该邮箱已被注册,请重新输入或直接 <a href="${base}/login.html" title="登录" >登录</a><!-- <a href="javascript:showLoginDialog(null,null,true)" title="登录" >登录</a> --><em class="error_arrow"></em></label>
+	          		</div>
+	          		<div class="clear mb20">
+            			<label>密　码 </label><input type="password" name="password" id="passwordV" class="br5 inputStyle" placeholder="输入密码" value="" tabindex="3" />
+            		</div>
+            		<div class="has_account">已有帐号， <a href="${base}/login.html" class="link_ub" title="直接登录" >直接登录</a></div>
+            		<input type="submit"  value="注 册"  class="br3 btn_login" />
+            		<a href="#TB_inline?width=380&height=240&inlineId=register" title="注册成功" class="thickbox" id="aTemp"></a>
+            	</form>
+	        </div>
+	        <div class="login_right">
+		        #if($!{adv})
+		    		<a href="$!{adv.link}"   target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+		    		 #else
+		    		<a href="http://www.bokecc.com/" target="_blank"><img src="${base}/images/new/uc_login.jpg" alt="广告" width="300" height="225" /></a>
+	    		#end
+	        </div>    
+	    </div>
+	</div>
+	
+	
+<!-- <div id="pageBody" class="clearfix">
+	<div class="mainBody">
+    	<div class="mainBox register">
+        	<h3>快速注册拉勾</h3>
+	    	<div class="quickRegister">使用拉勾合作网站帐号快速注册：<span><a href="${base}/ologin/auth/sina"><img src="${base}/images/btn_sina.gif" /></a></span></div>
+        	<h3>直接注册</h3>
+        	<form id="registerform" action="${base}/user/register" method="post">
+        	<div id='errorMsg' class='error_msg' style='display:none'></div>
+        	<div class="content editBox registerBox">
+                <ul>
+                	<li><label>姓名：</label><input name="name" type="text" id="nameV" value="请输入真实姓名." class="text-input" onclick="if(value=='请输入真实姓名.'){value='';this.style.color='#000'}" onblur="if(!value){value='请输入真实姓名.';this.style.color='#999'}"/></li>
+                    <li><label>邮箱：</label><input name="email" type="text" id="emailV" class="text-input" value='邮箱格式：you@163.com' onclick="if(value=='邮箱格式：you@163.com'){value='';this.style.color='#000'}" onblur="if(!value){value='邮箱格式：you@163.com';this.style.color='#999'}"/><label id="_hadr" class="error" style="display: none;">该邮箱地址已被注册！请直接 <a href="javascript:showLoginDialog(null,null,true)" title="登录" >登录</a></label></li>
+                    <li><label>密码：</label><input name="password" type="password" id="passwordV" class="text-input"/></li>
+                    <li><label>验证码：</label><input name="vcodeclient" type="text" class="" /><span><img id="checkImage" src="${base}/user/getValidateCode" align="absmiddle"  onclick="updateValidateCode()"/> <a href="javascript:updateValidateCode();">刷新</a><label class="error">验证码输入有误！</label></span></li>
+                    <li><label></label><input name="isRead" type="checkbox" value="" class="checkbox" id="isRedV"  />我已阅读并同意 <a href="#">3W站使用协议</a></li>
+                    <li class="editBtn"><label></label><input type="submit"  value="注 册" class="btn02"/><a href="#TB_inline?width=280&height=180&inlineId=register" title="注册成功" class="thickbox" id="aTemp"></a></li>            
+                </ul>                         
+            </div>        	
+        	</form>            
+        </div>
+    </div>
+    <div class="sideBar">
+    	<div class="register">        
+	    	<h3>如已有拉勾帐号，请直接 <a href="javascript:showLoginDialog(null,null,true)" title="登录" >登录</a></h3>
+	    </div>
+	    <br/>
+        <div class="rightBox02"  id="advImg">
+    		<a><img src="${base}/images/rightAds.jpg" alt="广告" width="300" /></a>   
+    	</div>
+  </div>
+</div> -->
+
+#parse("common/footer.html")
+</body>
+</html>

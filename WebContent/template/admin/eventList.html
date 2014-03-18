@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>活动列表</title>
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/page.css" type="text/css"	rel="stylesheet" />
+<script src="${base}/template/admin/js/jquery.pager.js"></script>
+<script src="${base}/template/admin/js/eventList.js"></script>
+</head>
+<script>
+	$(function() {
+		$('#Pagination').pager({
+	      currPage: ${page.getCurrentPageNo()},
+	      pageNOName: "pageNo",
+	      form: "searchForm",
+	      pageCount: ${page.getTotalPageCount()},
+	      pageSize: ${page.getPageSize()}
+	    });
+		//查看  
+		$( "#viewDialog" ).dialog({
+			autoOpen: false,
+			show: "clip",
+			hide: "explode",
+			modal: true,
+			width:800,
+			height:660,
+			position:'top',
+            buttons: {    
+                "关闭": function() {
+                    $( this ).dialog( "close" );
+                }
+            }
+		});
+	});
+	function view(id,url){
+		$( "#viewDialog" ).dialog( "open" );
+			return false;
+		}
+	function changgeValue()
+	{
+		document.getElementById("content").value="";
+	}
+	function fuzhi()
+	{
+		if(document.getElementById("content").value=="")
+		{
+			document.getElementById("content").value="请输入查询条件";
+		}
+	}
+	function ondelEvent(id) {
+    	//提交
+    	var tid=new Array(); 
+    	tid[0]=id;
+    	jQuery.ajax({
+    		  type: 'POST',
+    		  url: '${base}/eventadmin/deleteEvent',
+    		  data:"eventId="+tid,
+    		  success: function(data) {
+    			  if(data == 0) {//成功
+    				  alert("操作成功!");
+    				  $("#editDialog").dialog( "close" );
+    				  window.location.reload();
+    			  	  return true;
+    			  } 
+    			  if(data == 3) {
+    				  alert("操作失败!");
+    			  	  return false;
+    			  } 
+    			  if(data == 3) {
+    				  alert("登录超时!");
+    				  document.getElementById("logout").submit();
+    			  	  return false;
+    			  } 
+    		  },
+    		  error: function(err) {
+    			  alert("操作失败");
+    			  setTimeout(jQuery.unblockUI, 50); 
+    		  }
+    	});
+    }
+	</script>
+<body>
+<div class="grid_nav">
+<form id="searchForm" action="" method="post">
+<div class="grid_head">
+<input id="url" type="hidden" value="${base}/template/admin/"></input>
+ &nbsp;&nbsp;<a id="add" href="${base}/eventadmin/startSaveEvent">创建活动</a>&nbsp;&nbsp;
+ <div style="float:right; margin-right:10px;">
+
+ <select name="flag" onchange="$('#searchForm').submit();">
+ 	<option value="8" #if($!{flag}=="8")selected="selected"#end>[ 是否推荐 ]</option>
+ 	<option value="1" #if($!{flag}=="1")selected="selected"#end>推荐</option>
+ 	<option value="0" #if($!{flag}=="0")selected="selected"#end>不推荐</option>
+ </select>
+ &nbsp;&nbsp;&nbsp;&nbsp;
+ <select name="flag2" onchange="$('#searchForm').submit();">
+ 	<option value="8" #if($!{flag2}=="8")selected="selected"#end>[ 状态 ]</option>
+ 	<option value="0" #if($!{flag2}=="0")selected="selected"#end>不接受报名</option>
+ 	<option value="1" #if($!{flag2}=="1")selected="selected"#end>接受报名</option>
+ 	<option value="2" #if($!{flag2}=="2")selected="selected"#end>已结束</option>
+ </select>
+ &nbsp;&nbsp;&nbsp;&nbsp;
+ <select name="flag3" onchange="$('#searchForm').submit();">
+ 	<option value="8" #if($!{flag3}=="8")selected="selected"#end>[ 是否可见 ]</option>
+ 	<option value="1" #if($!{flag3}=="1")selected="selected"#end>可见</option>
+ 	<option value="0" #if($!{flag3}=="0")selected="selected"#end>不可见</option>
+ </select>
+ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 请选择活动开始日期：
+ <input type="hidden" id="datePicker"/>&nbsp;<input type="text" id="time"  size="12" name="beginTime" value="$!{beginTime}"  class="text ui-corner-all" />&nbsp;--&nbsp;
+ <input type="hidden" id="datePicker2"/>&nbsp;<input type="text" id="time2"  size="12" name="endTime" value="$!{endTime}"   class="text ui-corner-all" />&nbsp;&nbsp;&nbsp;&nbsp;
+ &nbsp;&nbsp;&nbsp;&nbsp;
+ <input type="text" id="content" name="content" value="#if($!{content})$!{content}#else请输入查询条件#end" onblur="fuzhi();" onclick="changgeValue();" class="text ui-corner-all" />&nbsp;&nbsp;<button id="search">搜索</button></div>
+</div>
+    <table width="100%" border="0" class="grid">
+      <tr>
+        <th nowrap="nowrap" ></th>
+        <th nowrap="nowrap">主标题</th>
+       <!--  <th nowrap="nowrap">副标题</th> -->
+        <th nowrap="nowrap">城市</th>
+        <th nowrap="nowrap">地址</th>
+        <th nowrap="nowrap">预计开始时间</th>
+        <th nowrap="nowrap">预计结束时间</th>
+        <th nowrap="nowrap">人数限额</th>
+        <th nowrap="nowrap">报名人数</th>
+        <th nowrap="nowrap">签到人数</th>
+        <th nowrap="nowrap">是否推荐</th>
+        <th nowrap="nowrap">状态</th>
+        <th nowrap="nowrap">是否可见</th>
+        <th>操作</td>
+      </tr>
+       #foreach($event in $!{page.result} )
+      <tr>
+      	<td>$velocityCount</td>
+        <td>#set($str=$!{event.topic} ) 
+        	#if($str.length()>25)
+   			     #set($str=$str.substring(0,25))
+   			     $str ...
+   			 #else
+     			$!{event.topic}
+  			  #end
+        </td>
+       <!--   <td>#set($str=$!{event.subtopic} ) 
+   			#if($str.length()>15)
+   			     #set($str=$str.substring(0,15))
+   			     $str ...
+   			 #else
+     			$!{event.subtopic} 
+  			  #end</td>-->
+        <td>
+        #foreach($code in $!{listCode} )
+       	 #if($!{event.citycode}==$!{code.code})$!{code.value} #end
+        #end</td>
+        <td>
+         #set($str=$!{event.place}) 
+   			#if($str.length()>25)
+   			     #set($str=$str.substring(0,25))
+   			     $str ...
+   			 #else
+     			$!{event.place}
+  			  #end
+        </td>
+        <td>$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{event.starttime})</td>
+        <td>$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{event.endtime})</td>
+        <td>#if($!{event.quota}==-1)不限#else$!{event.quota}人#end</td>
+        <td>$!{event.applyCount}人</td>
+        <td>$!{event.signCount}人</td>
+        <td>#if($!{event.recommendation}=="0")不推荐#else <font color="green">推荐</font> #end</td>
+        <td>#if($!{event.state}=="0")不接受报名#elseif($!{event.state}=="1")<font color="green">接受报名</font>#else已结束#end</td>
+        <td>#if($!{event.visible}=="0")不可见#else<font color="green">可见</font>#end</td>
+        <td nowrap="nowrap"><a href="${base}/eventadmin/startUpEvent?EventId=$!{event.eventid}">编辑</a>&nbsp;|&nbsp;<a href="${base}/eventadmin/queryUserEvent?id=$!{event.eventid}&start=1&pageSize=${page.getPageSize()}&pageNo=${page.getPageNo()}">签到</a>&nbsp;|&nbsp;<a href="${base}/adminmail/toSendEvenUsers/$!{event.eventid}">写邮件</a></td>
+      </tr>
+      #end
+    </table>
+    </form>
+</div>
+  <form action="${base}/lagouAdmin/logout" id="logout" target="_top"></form>
+<div id="Pagination" class="pageNum clearfix"></div>
+<div id="delConfirm" title="删除">
+ 确认删除？
+</div>
+<div id="viewDialog" title="活动信息"></div>
+</body>
+</html>

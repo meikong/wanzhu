@@ -1,0 +1,388 @@
+#parse("common/include_web.html")
+<base href="${base}/" />
+<script type="text/javascript" src="${base}/js/json2.js"></script>
+<script type="text/javascript" src="${base}/js/index.js"></script>
+<!-- <script type="text/javascript" src="${base}/js/index_calendar.js"></script> -->
+<script type="text/javascript" src="${base}/js/index_loadlabels.js"></script>
+<script type="text/javascript">
+	$(function() {
+		//
+		$('.checking').hover(function(){
+			btnText = $(this).text();
+			$(this).addClass('cancel').text('取消报名');
+		},function(){
+			$(this).removeClass('cancel').text(btnText);
+		});
+		$('.checking').live('click', function() {
+			var eventId = $(this).attr("rel");
+			$("#cancelSign").attr("rel",eventId);
+			$("#unsignLink").click();
+		});
+		
+		/* $("#signupBtn").click(function() {
+			sign();
+		}); */
+		$('#cancelSign').click(function(){
+			unsign($(this).attr("rel"));
+		});
+		$("#signupBtn").click(function() {
+			sign($(this).attr("rel"));
+		});
+		
+		recommendFriend();
+			
+		//加载标签
+		//loadLabels();
+		
+		//好友近期动态
+		//activityOfFriend();
+		
+	});
+	function unsign(eventId) {
+		//var eventId = "$!{event.eventid}";
+		jQuery.ajax({
+			type: "post",
+			dataType : "json",
+			url: ctx+"/event/us_"+eventId+".json",
+			success: function(json){
+				if(json.msg == "20003") {
+					$('#login_index_form .btn_login').click();
+				} else {
+					window.location.reload();
+				}
+			}
+		});
+	}	
+	function sign(eventId) {
+		//var eventId = "$!{event.eventid}";
+		jQuery.ajax({
+			type: "post",
+			dataType : "json",
+			url: ctx+"/event/s_"+eventId+".json",
+			success: function(json){
+				if(json.msg == "20003") {
+					$('#login_index_form .btn_login').click();
+				} else {
+					var flag = $('#userState').val();
+					if(flag=="0") {
+						$("#limitedLink").click();
+					}else{
+						window.top.location=ctx+"/event/s_"+eventId+".html";
+						//window.location.reload();
+					}
+					//window.top.location=ctx+"/event/s_"+eventId+".html";
+				}
+			}
+		});
+	}
+		
+	//推荐好友
+	function recommendFriend()
+	{
+		jQuery.ajax({
+			type : 'POST',
+			dataType : "json",
+			url : '${base}/relationship/recommendFriend.json', 
+			data : "",
+			success : function(data) {
+				var result = data.result;
+				if(result.length == 0){
+					$('#recommendFriend').hide();
+				 }else{
+					var appendStr ="";
+					if(data.hasNext){
+						appendStr += "<dt class='clear'><h2 class='fl mt0'>好友推荐</h2><a class='refresh' onclick='recommendFriend()'></a></dt><dd><ul class='apply_list'>";
+					}else{
+						appendStr += "<dt class='clear'><h2 class='fl mt0'>好友推荐</h2></dt><dd><ul class='apply_list'>";
+					}
+						
+					for(var i=0;i<result.length;i++){
+						appendStr += "<li><a href='"+ctx+"/user/f_"+result[i].userId+".html'><img src='"+result[i].portrait+"' width='44' height='44' alt='' />"+
+	               		 	"<div>"+result[i].username+" <br /><span>"+result[i].reason+"</span>"+
+	            			"</div></a><a href=\"javascript:add('"+result[i].userId+"')\" class='af br3'>加好友</a></li>";
+					 }
+					appendStr += "</ul></dd>";
+					 
+					 $('#recommendFriend').html(appendStr);
+					 
+					//加好友
+					$('.af').hover(function(){
+						$(this).stop(true,true).delay(200).css('backgroundColor','#0061a6').animate({width:'40px'},200);
+					},function(){
+						$(this).stop(true,true).delay(200).animate({width:0},200).css('backgroundColor','#95a9b7');
+					});
+				 }	 	 
+			 }
+		});
+	}
+	//加载5条好友近期动态
+	/* function activityOfFriend()
+	{
+		var size = 5;
+		jQuery.ajax({
+			type : 'POST',
+			dataType : "json",
+			url : '${base}/activity/queryActivitiesOfFriend.json',
+			data : "currentPage=1&pageSize="+size,
+			success : function(data) {
+					if(data.msg==20003)
+						return;
+					var result = data.content.result;
+					if(data.success && null != result && result.length>0)
+					{
+						var portrait = "";
+						for(var vo in result)
+						{
+							portrait =  result[vo].portrait;
+							if(""== portrait || null == portrait) portrait = ctx+"/images/icon_man.png";
+							var appendContent = "<div class=\"feedBox clearfix\">"
+			            	+"<div class=\"itemImg\"><a href=\"${base}/user/f_"+result[vo].userId+".html\"  target=\"_blank\"><img src=\""+portrait+"\" width=\"50\" height=\"50\" /></a></div>"
+			            	+"<div class=\"itemInfo\">"
+			            	+"<h4 class=\"clearfix\"><span>"+getDateDiff(""+result[vo].time+"")+"</span><a href=\"${base}/user/f_"+result[vo].userId+".html\" target=\"_blank\">"+result[vo].username+"</a></h4>"
+			            	+result[vo].content+"</div></div>";
+							$("#activityOfFriendContent").append(appendContent);
+							$("#activityOfFriendDiv").show();
+						}
+						//是否显示查看更多链接
+						if(data.content.totalCount>size) $("#MoreactivityOfFriendDiv").show();
+					}
+			},
+			error : function(err) {
+			},
+			complete : function() {
+			}
+		});
+	} */
+</script>
+</head>
+
+<body>
+	<div id="header">
+    	<div class="wrapper">
+    		<a href="${base}/index.html" class="logo">3W</a>
+    		
+    		#if($session.getAttribute("USER_CONTEXT"))
+    		<!-- 已登录+++++++++++++++++++++++++++ -->
+    			<script type="text/javascript">
+					jQuery(function() {
+						jQuery.ajax({
+							type : "POST",
+							url : ctx + "/qumc.json",
+							success : function(data) {
+								if (data) {
+									if (data.success == true) {
+										if (data.content.uc > 0) {
+											$('.ico_msg i').text(data.content.uc).removeClass('dn');
+											if(data.content.unc == 0){
+												$('#unc').text('');
+											}else{
+												$('#unc').text(data.content.unc);
+											}
+											if(data.content.umc == 0){
+												$('#umc').text('');
+											}else{
+												$('#umc').text(data.content.umc);
+											}
+										}else{
+											$('.ico_msg i').addClass('dn');
+										}
+									} else {
+										$('.ico_msg i').addClass('dn');
+									}
+								}
+							}
+						});
+					});
+				</script>
+				<ul class="nav">
+	            	<li>
+	            		<a href="javascript:void(0)" class="username"><span class="ico_ppl"></span>$!session.getAttribute("USER_CONTEXT").name</a>
+	            		<ul class="dn">
+							<li><a href="${base}/user/i.html">我的主页</a></li>
+							<li><a href="${base}/user/qs.html">帐号设置</a></li>
+							<li><a href="${base}/user/lo.html">退出</a></li>
+						</ul>
+	            	</li>
+	            	<li>
+	                	<a href="javascript:void(0)"><span class="ico_msg"><i class="dn"></i></span>消息</a>
+	                	<ul class="dn">
+	                    	<li><a href="${base}/notification/notificationList.html">通知 <span id="unc"></span></a></li>
+	                    	<li><a href="${base}/message/messageList.html">私信 <span id="umc"></span></a></li>
+	                    </ul>
+	                </li>
+	            </ul>
+	        #end
+        </div>
+    </div>
+    
+	<div id="container" class="clear">
+    	<div class="content">
+            <h2 class="mt0 fl">最新活动</h2>
+            <div class="ctrl_btns">
+            	<a id="prev" class="bctrl">&lt;</a>
+        		<div id="bannersNum"><span>1</span>/<em></em></div>
+        		<a id="next" class="bctrl">&gt;</a>
+           		<a href="${base}/event/e_1_0_0.html" class="link_b">更多>></a>
+        	</div>
+        	<div id="slide_wrapper">
+            	<ul id="slideshow">
+                	 #foreach($event in $comingEvents)
+                     	#parse("event/tp_index_coming_list.html")
+                     #end
+                </ul>
+            </div>
+            
+            <div class="hot_tag"  id="labels">
+            	热门标签：
+            	#foreach($tag in $result)
+            		<a href="${base}/event/ae_$!{tag.labelId}.html">$!{tag.label}</a>
+            	#end
+            </div>
+            <dl class="activity_video">
+            	<dt>
+                	<h2>活动视频</h2>
+                    <a href="${base}/event/e_0_0_0.html" class="more link_b">查看更多>></a>
+                </dt>
+                <dd class="clear">
+                	#set($count = 0)
+ #foreach($summary in $videos)
+                	#set($posterUrl="src='${base}/images/noPic.jpg'" )
+                    #set($hasVideo="")
+                    #set($hasVideoTitle="")
+                    #set($hasPPT="")
+
+
+	#if($summary.type==0)
+		#set($hasVideoTitle=("title='$!{summary.words}'"))
+		#set($hasVideo=$!{summary.words})
+		#set($summaryIds=$!{summary.summaryid})
+		#set($posterUrl=("src='$!{summary.snapshot}'"))
+		#parse("event/tp_index_past_list.html")
+	#end
+
+	#if($summary.type==3)
+		#set($posterUrl=("src='$!{summary.snapshot}'"))
+	#end
+	
+#end
+                </dd>
+            </dl>
+        </div>
+        <div class="sidebar">
+	        #if(!$session.getAttribute("USER_CONTEXT"))
+				#parse("common/loginindex.html")
+			#else
+				<!-- 已登录+++++++++++++++++++++++++++ -->
+				<div class="login_form br5">
+					<a href="${base}/user/i.html" class="font16">$!session.getAttribute("USER_CONTEXT").name</a>，欢迎回来
+					<ul class="loginedList">
+						<!-- <li><a href="">参与的活动</a></li> -->
+						<li><a href="${base}/relationship/friendsInDetail.html">朋友</a></li>
+						<li><a href="${base}/message/messageList.html">私信</a></li>
+					</ul>
+				</div>
+			#end 
+			
+			#if($session.getAttribute("USER_CONTEXT"))
+				<dl id="recommendFriend"  class="opinion"></dl>
+			#end
+			
+			#set($cArticle = 0)
+			#foreach($article in $articles)
+				#set($cArticle = $cArticle + 1)
+			#end
+			#if($cArticle != 0)
+			<dl class="opinion">
+            	<dt>
+    				<h2>推荐阅读</h2>
+                </dt>
+                <dd>
+                	<ul>
+
+                		#foreach($article in $articles)
+							<li><a href="${base}/event/articleList_${article.eventid}_$!{article.summaryid}.html" title="$!{article.summaryTitle}">$display.truncate($!{article.summaryTitle},20,"...")</a></li>
+						#end
+
+                    </ul>
+                </dd>
+            </dl>
+            #end
+            <div class="side_box br5 clear">
+            	<h2>推荐3W的公共号</h2>
+            	<div class="clear">
+                	<img src="${base}/images/new/qrcode_3w.jpg" width="150" height="150" alt="" />
+                	<p>“3W互联网深度精选”，在这里读懂互联网。微信账号：studywww，或扫描左侧二维码。</p>
+                </div>
+                <div class="clear">
+                	<img src="${base}/images/new/qrcode.jpg" width="150" height="150" alt="" />
+                	<p>扫描左侧二维码或在微信中搜索 “IT_job”添加“IT工作机会”微信帐号，即时获取最有价值的求职招聘信息。</p>
+                </div>
+            </div>
+            <a href="http://www.ucloud.cn/" target="_blank"><img src="${base}/images/new/ucloud.png" width="298" height="59" alt="" border="0" /></a>       
+        </div>
+    </div>
+    <input type="hidden" id="userState" value="$session.getAttribute('USER_CONTEXT').state" />
+    
+	<!-- <div id="pageBody" class="clearfix">
+		
+			<div class="rightBox02">
+				<h3 class="clearfix">
+					标签
+				</h3>
+				<div class="content">
+					<ul id="labels"></ul>
+				</div>
+			</div>
+		
+			好友近期动态
+			<div class="rightBox" style="display:none" id="activityOfFriendDiv">
+		        	<h3 class="clearfix"><span id="MoreactivityOfFriendDiv" style="display:none;"><a href="${base}/activity/queryActivitiesOfFriend.html">查看更多&raquo;</a></span>好友近期动态</h3>
+		        	<div class="" id="activityOfFriendContent">
+		           				//
+		            </div>
+      		  </div>
+      		  
+		</div>
+	</div> -->
+	#parse("common/friends.html")
+  #parse("common/message.html")
+  #parse("common/aboutUser.html")
+	#parse("common/footer.html")
+	
+	<a id='limitedLink' href='#TB_inline?test=null&height=150&width=320&inlineId=limited' title='出错' class='thickbox'></a>
+	<div id="limited" style="display:none;">
+	    <div class="registerPop">
+        	<h4>未能报名</h4>
+        	<div class="mb20">对不起，你是受限用户，不能报名。</div>
+	     	<div><input type="submit" value="确 定" class="btn_login br5 ml60" onclick="tb_remove()" /></div>
+	    </div>
+	</div>
+	<a id='sucLink' href='#TB_inline?test=null&height=160&width=320&inlineId=applySuccess' title='' class='thickbox'></a>
+	<div id="applySuccess" style="display:none;">
+	    <div class="registerPop">
+	        <h4>报名成功！</h4>
+	        <div class="mb20">报名通过审核后，我们将发邮件通知你。</div>                     
+	        <div>
+	        	<a class="btn_login fl br5" onclick="fxCheck();">确 定</a>
+	        	&nbsp;&nbsp;
+	        	<input type="checkbox" id="_checkfx" checked="checked" class="checked" style="border:0;"/> 
+	        	分享到：<a href="javascript:(function(){window.open('http://v.t.sina.com.cn/share/share.php?
+	title='+encodeURIComponent('我在3W报名了：$!{event.topic}，分享一下')+'&appkey=1773791621'+'&pic='+encodeURIComponent($('#_event_img').attr('src'))+'&url='+encodeURIComponent(location.href.split('?')[0])
+	+'&source=3wcoffee','_blank','width=600,height=500');})()">
+				<img src="${base}/images/icon_sina.gif" /></a>
+			</div>
+	    </div>
+	</div>
+	
+	<a id='unsignLink' href='#TB_inline?test=null&height=150&width=320&inlineId=unsign' title='' class='thickbox'></a>
+	<div id="unsign" style="display:none;">
+	    <div class="registerPop">
+        	<h4>确定取消报名吗？</h4>
+        	<div class="mb20">活动如此精彩，你确定要取消此次报名吗？</div>
+	     	<input type="button" value="确 定" class="btn_login br5 ml60" id="cancelSign" />&nbsp;&nbsp;&nbsp;          
+            	<!-- <input type="button" value="取 消" class="btn01" onclick="tb_remove()" /> -->             
+        	                     
+	    </div>
+	</div>
+</body>
+</html>

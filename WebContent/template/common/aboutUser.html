@@ -1,0 +1,130 @@
+ <!-- 鎮诞妗嗗叕鍏辨ā鍧�
+  -->
+ <script src="${base}/js/jquery.blockUI.js"></script>
+  <script src="${base}/js/repeat.js"></script>
+ <div class="popupBox"  style="display: none; position: absolute; z-index: 880;"  onmouseover="this.style.display='';" onmouseout="this.style.display='none';">
+
+ <div class="inner">
+		<div class="personalBox clear">
+			<div class="itemImg">
+				<a><img src="" width="50"
+					height="50" /></a>
+			</div>
+			<div class="itemInfo">
+				<h4>
+					<a>&nbsp;</a>
+				</h4>
+				<!-- <span><em>&nbsp;</em>
+					22&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em>&nbsp;</em> &nbsp;</span> -->
+			</div>
+		</div>
+		<div class="info">&nbsp;</div>
+		<div class="btn">
+			<a href="#">&nbsp;</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" class="btn_bbg">&nbsp;</a>
+		</div>
+	</div>
+	<div class="btm"></div>
+ </div>
+ <script type="text/javascript">
+
+$(function(){
+	var t ;
+	$('.tipALink').live('mouseover',function()
+	{
+		var offset = null;
+		var	xx = null;
+		var  yy = null;
+		/* if($(this).parents("div.topic").size()!=0){
+			offset= $(this).offset();
+			 xx = offset.left+60; 
+			 yy = offset.top-10;
+		}else{ */
+			offset = $(this).offset();
+			xx = offset.left+$(this).width()-5; 
+			yy = offset.top-10;
+		/* } */
+		var uid=$(this).attr("uid");
+		//閿氱偣
+		var point =  $(this).attr("point");
+		
+		t = setTimeout(function(){
+			jQuery.ajax({
+				type : 'POST',
+				dataType : "json",
+				url : ctx+'/discuz/aboutUser.json',
+				data:"userId=$!session.getAttribute('USER_CONTEXT').getUserid()&friendId="+uid,
+				success : function(data) {
+					if(!data.success)
+						return;
+					var vo = data.content;
+					var portrait =  vo.portrait;
+					if(""== portrait || null == portrait) portrait = ctx+"/images/icon_man.png";
+					var content = "<div class=\"inner\">"
+		              +"<div class=\"personalBox clear\">"
+		              +"<div class=\"itemImg\"><a href=\""+ctx+"/user/f_"+vo.userId+".html\"  target=\"_blank\"><img src=\""+portrait+"\" width=\"50\" height=\"50\" /></a></div>"
+		              +"<div class=\"itemInfo\">"
+		              +"<h4><a href=\""+ctx+"/user/f_"+vo.userId+".html\"  target=\"_blank\">"+vo.username+"</a></h4>"
+		              +(null==vo.company?"":vo.company)+"  "+(null== vo.workPosition?"":vo.workPosition)
+		              //+"<span><em><a href=\""+ctx+"/user/f_"+vo.userId+".html\"  target=\"_blank\">濂藉弸</a></em> "+vo.friendsCount+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<em><a href=\""+ctx+"/user/f_"+vo.userId+".html\"  target=\"_blank\">娲诲姩</a></em> "+vo.eventsCount+"</span>     "     
+		              +"</div>"
+		              +"</div>"
+		              //+"<div class=\"info\">"+(null==vo.summary?"":vo.summary)+"</div>";
+		              //鍒ゆ柇鏄惁宸茬櫥褰�
+		              if("$!session.getAttribute('USER_CONTEXT').getUserid()".length==0)
+		              {
+		            	  content+="<div class=\"btn\"><a href=\"javascript:send('NULL','NULL','"+point+"')\">私信</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"javascript:add('NULL','"+point+"')\" class='btn_bbg'>加好友</a></div>";
+		              }else
+		              {
+		            	  if(vo.isFriend) 	 content+="<div class=\"btn\"><a href=\"javascript:send('"+vo.userId+"','"+vo.username+"')\">私信</a>&nbsp;&nbsp;&nbsp;&nbsp;<a class='isfriend'>已是好友</a></div>";
+			              else if(vo.userId != "$!session.getAttribute('USER_CONTEXT').getUserid()")  content+="<div class=\"btn\"><a href=\"javascript:send('')\">私信</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"javascript:add('"+vo.userId+"')\" class='btn_bbg'>加好友</a></div>";
+		              }
+		              content+="</div>";
+		              /* if(yy<$(".popupBox").height()){
+		            	  content= "<div class=btm></div>"+content+"<div class=popupTop></div> "; 
+		              }else{
+		            	  content= "<div class=popupTop></div>"+content+"<div class=btm></div> "; 
+		              } */
+					$(".popupBox").html(content);
+		              /* if(yy<$(".popupBox").height()){
+		            	  $(".btm,.popupTop").addClass("bgTransform");
+		            	  yy+=$(".popupBox").height()+15;
+		              } */
+					$(".popupBox").css('left',xx).css('top',yy).fadeIn(500);
+				}
+			});
+		},500);
+	}).live('mouseout',function() {
+		$(".popupBox").hide();
+		clearTimeout(t);
+    });
+	
+	/* function getMousePoint(e) {
+		var point = {
+			x:0,
+			y:0
+		};
+
+		if(typeof window.pageYOffset != 'undefined') {
+			point.x = window.pageXOffset;
+			point.y = window.pageYOffset;
+		}
+		else if(typeof document.compatMode != 'undefined' && document.compatMode != 'BackCompat') {
+			point.x = document.documentElement.scrollLeft;
+			point.y = document.documentElement.scrollTop;
+		}
+		else if(typeof document.body != 'undefined') {
+			point.x = document.body.scrollLeft;
+			point.y = document.body.scrollTop;
+		}
+
+		point.x += ev.clientX;
+		point.y += ev.clientY;
+
+		return point;
+	} */
+});
+
+</script>
+<div id="loginNav" style="display:none;">
+#parse("common/login.html")
+</div>

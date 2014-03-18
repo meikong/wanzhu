@@ -1,0 +1,27 @@
+
+    <a href="#TB_inline?tempNull=null&height=310&width=380&inlineId=loginNav" title="" class="thickbox" id="loginlink"></a>
+    <!-- <div class="loginTitle">用户登录</div> -->
+    <div class="loginBox">
+        <h2>用户登录</h2>
+        <form id="loginPageForm" action="${base}/user/login.json" method="post">
+        	<div class="mb20">
+        		<label>邮　箱 </label><input type="text" name="email" value="$!{cookie.get('3wcoffeeuseremail').value}" id="nameValid" placeholder="输入邮箱帐号" class="br5 inputStyle" tabindex="1" />
+            	<label id="loginErrorMsg" class="error" style="display:none"></label>
+            </div>
+            <div class="mb20">
+            	<label>密　码</label><input type="password" name="password" id="passwordValid" class="br5 inputStyle" placeholder="输入密码" value="" tabindex="2" />
+            </div>
+            <div class="mb20">
+            	<input type="checkbox"  class="checkBox" value="" name="autoLogin" /> 记住我
+        	</div>
+        	<div class="mb20 clear">
+        		<input type="submit" value="登　录" class="br3 btn_login"  />
+        		<a href="${base}/forgetpassword.html" class="forgot_psw">忘记密码？</a>
+        	</div>
+        	<div class="mb20 clear">
+        		<a id="oauthlink" href="${base}/ologin/auth/sina" class="weibo fl">使用微博登录</a>
+            	<a href="${base}/register.html" class="register">注册新帐号</a>
+        	</div>
+        </form>       
+        <script type="text/javascript" src="${base}/js/login/login.js"></script>
+	</div>

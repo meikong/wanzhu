@@ -1,0 +1,107 @@
+#parse("common/include_web.html")
+<link href="${base}/css/page.css" rel="stylesheet" type="text/css" />
+<script src="${base}/js/jquery.pager.js"></script>
+<script src="${base}/js/jquery.blockUI.js"></script>
+<script type="text/javascript" src="${base}/js/friends/friends.js"></script>
+<style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+</style>
+<script type="text/javascript">
+		$(function(){
+			//分页控件
+			$('#Pagination').pager(
+			{
+		      currPage: ${page.getCurrentPageNo()},
+		      pageNOName: "pageNo",
+		      form: "searchForm",
+		      pageCount: ${page.getTotalPageCount()},
+		      pageSize: ${page.getPageSize()}
+		    });
+
+
+			$("#addFriendBtn").click(addFriend);
+		});
+		function add(friendid){
+			$("#addFriend_friendId").val(friendid);
+			$("#invitation").val("");
+			$("#tempALink").click();
+		}
+</script>
+</head>
+<body>
+#parse("common/head.html")
+
+<a href="#TB_inline?width=380&height=220&inlineId=addFriendNav"  style="display:none;" id="tempALink"  title="加好友" class="thickbox">&nbsp;</a>
+<div id="addFriendNav" style="display:none;">
+        <div class="messageBoxPop">
+        	<input type="hidden"  id="userId" value='$!session.getAttribute("USER_CONTEXT").getUserid()'/>
+        	<input type="hidden" id="addFriend_friendId" value="$!{data.userid}"/>
+            <textarea  id="invitation" cols="" rows="3"  placeholder="跟对方打个招呼呗～～随便说点什么..."></textarea>
+            <input type="button" value="发 送" class="br5 btn_login"  id="addFriendBtn" />
+            </ul>
+        </div>
+</div>
+
+<div id="container" class="clear">
+    <div class="content">
+		<form id="searchForm" method="post">
+    		<dl>
+	    		<dt class="clear">
+	    			<h2 class="mt0 fl"> 他的好友<em>（$!{friendsCountOfMine}个）</em></h2>
+	    			<span class="fr">
+	    				<input name="condition" type="text" class="inputStyle br5" onkeydown="if(event.keyCode==13){$('#searchForm').submit();}" placeholder="请输入关键字" value="$!{condition}" /> 
+	    				<a onclick="$('#searchForm').submit();" class="btnSerach"></a> 
+	    			</span>
+	    		</dt>
+	    		<dd>
+					#foreach($vo in $!{page.result} )
+        			<div class="feedBox clear">
+        				#set($portrait=$!{vo.portrait})
+        				#if(!$!{vo.portrait})
+        					 #set($portrait="${base}/images/icon_man.png")
+        				#end
+        				
+	           			#if($!session.getAttribute("USER_CONTEXT").getUserid() ==$!{vo.userId})
+	                	<a class="portrait" href="${base}/user/i.html"  target="_blank"><img src="$!{portrait}" width="44" height="44" class="br3" /></a>
+	                	#else
+	                	<a class="portrait" href="${base}/user/f_$!{vo.userId}.html"  target="_blank"><img src="$!{portrait}" width="44" height="44" class="br3" /></a>
+	                	#end
+	                	<div class="itemInfo">
+	                    	<div class="clear">
+                    			#if($!session.getAttribute("USER_CONTEXT").getUserid() ==$!{vo.userId})
+		                    	<a href="${base}/user/i.html" target="_blank"><strong>$!{vo.username}</strong></a> 
+                    			#else
+                    			<a href="${base}/user/f_$!{vo.userId}.html" target="_blank"><strong>$!{vo.username}</strong></a> 
+                    			#end
+	                    		#if($!session.getAttribute("USER_CONTEXT").getUserid())
+	           						#if($!session.getAttribute("USER_CONTEXT").getUserid() !=$!{vo.userId})
+		             					#if($!{vo.isFriend}==false)
+		             						<a id="friendNav_$!{vo.userId}" href="javascript:add('$!{vo.userId}')" class="fr link_b">加为好友</a>
+		             					#end
+		             				#end
+	           					#end
+	                    	</div>
+	                    	
+	                        #set($cjob='')
+	                    	#if($!{vo.workPosition} && $!{vo.company}) #set($cjob='  ') #end
+	                    	<div class="grey12">$!{vo.company}$!{cjob}$!{vo.workPosition}</div>
+	                        <div> 他的好友<em>（$!{vo.friendsCount}个）</em> </div>        
+	               	  </div>
+                	</div>
+                	#end
+                	<div id="Pagination"></div>
+            	</dd>
+        	</dl>
+        </form>
+    </div>
+    <div class="sidebar">
+   		#if($!{adv})
+    		<a href="$!{adv.link}"   target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+    		 #else
+    		 <a href="http://www.bokecc.com/" target="_blank"><img src="${base}/images/new/uc_login.jpg" alt="广告" width="300" height="225" /></a>
+  		#end
+  </div>
+</div>
+#parse("common/footer.html")
+</body>
+</html>

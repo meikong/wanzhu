@@ -1,0 +1,63 @@
+<div id="header">
+    	<div class="wrapper">
+    		<a href="${base}/index.html" class="logo">3W</a>
+		
+		#if(!$session.getAttribute("USER_CONTEXT"))
+		<!-- 未登录 -->
+		<ul class="nav">
+        	<li><a href="${base}/login.html">登录</a></li>
+        	<li><a href="${base}/register.html">注册</a></li>
+        </ul>
+		#else
+		<!-- 已登录+++++++++++++++++++++++++++ -->
+		<script type="text/javascript">
+			jQuery(function() {
+				jQuery.ajax({
+					type : "POST",
+					url : ctx + "/qumc.json",
+					success : function(data) {
+						if (data) {
+							if (data.success == true) {
+								if (data.content.uc > 0) {
+									$('.ico_msg i').text(data.content.uc).removeClass('dn');
+									if(data.content.unc == 0){
+										$('#unc').text('');
+									}else{
+										$('#unc').text(data.content.unc);
+									}
+									if(data.content.umc == 0){
+										$('#umc').text('');
+									}else{
+										$('#umc').text(data.content.umc);
+									}
+								}else{
+									$('.ico_msg i').addClass('dn');
+								}
+							} else {
+								$('.ico_msg i').addClass('dn');
+							}
+						}
+					}
+				});
+			});
+		</script>
+		<ul class="nav">
+           	<li>
+           		<a href="javascript:void(0)" class="username"><span class="ico_ppl"></span>$!session.getAttribute("USER_CONTEXT").name</a>
+           		<ul class="dn">
+					<li><a href="${base}/user/i.html">我的主页</a></li>
+					<li><a href="${base}/user/qs.html">帐号设置</a></li>
+					<li><a href="${base}/user/lo.html">退出</a></li>
+				</ul>
+           	</li>
+           	<li>
+               	<a href="javascript:void(0)"><span class="ico_msg"><i class="dn"></i></span>消息</a>
+               	<ul class="dn">
+                   		<li><a href="${base}/notification/notificationList.html">通知 <span id="unc"></span></a></li>
+	                   	<li><a href="${base}/message/messageList.html">私信 <span id="umc"></span></a></li>
+	               </ul>
+               </li>
+           </ul>
+		#end
+	</div>
+</div>

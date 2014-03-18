@@ -1,0 +1,80 @@
+#parse("common/include_web.html")
+<script type="text/javascript" src="${base}/js/event/loading_pasts.js"></script>
+<script type="text/javascript" src="${base}/js/event/loading_labels.js"></script>
+<script type="text/javascript">
+$(function(){
+	
+	//滚动加载
+	var scrollCount = 0;
+	pn=-1; ps = -1;
+	var _pageNo = -1;
+	hasNextPage = ${result.isHasNextPage()};
+	$(window).bind("scroll", function() {
+		if(hasNextPage) {
+			var fold = $("#flag").offset().top;
+			if(scrollCount >= 2) {
+				return ;
+			}	
+			if(fold <= $(window).scrollTop() + 600) { 
+				var p = pn < 0 ? $!{result.pageNo} : pn;
+				if(_pageNo == p) return;
+				_pageNo = p;
+				loadPasts((pn < 0 ? $!{result.pageNo} : pn), 
+						(ps < 0 ? $!{result.pageSize} : ps), 
+						0, "$!{labelId}", $("#scrollContent"), $("#loading"), $("#btnMore"));
+				scrollCount++;
+			}
+		}
+	});	
+
+	$("#btnMore a").click(function() {
+		//alert($!{result.pageNo}+" "+$!{result.pageSize})
+		loadPasts($!{result.pageNo}, $!{result.pageSize}, 0, "$!{labelId}", $("#scrollContent"), $("#loading"), $("#btnMore"));
+	});
+	
+	//加载标签
+	loadingLabels(0, "$!{cityCode}", $result.totalCount, "$!{labelId}");
+ });
+ 
+</script>
+</head>
+
+<body>
+#parse("common/head.html")
+<div id="container" class="clear">
+    <div class="content">
+        <dl>
+    		<dt>
+    			<h2 class="mt0">往期活动</h2>
+        		<a href="${base}/event/e_1_0_0.html" class="more link_b">查看近期将要开始的活动>></a>
+        	</dt>
+        	<dd>
+		    	<div id="scrollContent">
+		           	#if($result.result.size() <= 0)
+		           		<div class="promptBox">暂无活动</div> 
+		           	#end
+		           	#foreach($event in $result.result)
+		           		#parse("event/tp_past_list.html")
+		            #end
+		        </div>
+		        <span id="flag"></span>
+		        #if(${result.isHasNextPage()})
+		          <div class="btnMore eventBtnMore" id="btnMore"><a>查看更多>></a></div>
+		        #end
+		          <div id="loading" class="loading dn"><img src="${base}/images/loading.gif" />加载中......</div>  
+		    </dd>
+		</dl>
+    </div>
+        
+    <div class="sidebar"> 
+    	<div class="tagsListR mt0 br5">        
+    		#parse("event/tp_labels.html")
+    	</div>
+    </div>
+</div>
+  #parse("common/friends.html")
+  #parse("common/message.html")
+  #parse("common/aboutUser.html")
+#parse("common/footer.html")
+</body>
+</html>

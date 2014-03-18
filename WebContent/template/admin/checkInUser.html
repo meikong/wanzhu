@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/page.css" type="text/css"	rel="stylesheet" />
+<script src="${base}/template/admin/js/jquery.pager.js"></script>
+<script src="${base}/template/admin/js/checkInUser.js" type="text/javascript" language="javascript" ></script>
+<script >
+function signupEvent(id,signup,names,audit,users,auts,userId) {
+	//提交
+	jQuery.ajax({
+		  type: 'POST',
+		  url: '${base}/eventadmin/signIn',
+		  data:"UserEventId="+id+"&signup="+signup+"&audit=",
+		  success: function(data) {
+			  if(data == 0) {//成功
+				  var data="<a href=\"#\" onclick=\"info('"+userId+"','${base}/adminuser/queryuser','1')\">查看</a>&nbsp;&nbsp;";
+				  if(names==1){
+					  document.getElementById("tds"+ids).innerHTML="<font color=green>已签到</font>";
+					  if(auts==1){
+					      	data+="<a href=\"#\" onclick=\"check('"+ids+"',1,'签到',1,1,'"+users+"',0,'"+userId+"')\">签到</a>";
+						  }else{
+							data+="<a href=\"#\" onclick=\"check('"+ids+"',0,'未签到',0,1,'"+users+"',1,'"+userId+"')\">设为未签到</a>";
+						  }
+						  if(audit==0){
+							  data+="<a href=\"#\" onclick=\"check2('"+ids+"',1,'设为审核通过',1,1,'"+users+"',0,'"+userId+"')\">设为审核通过</a>";
+						  }else{
+							  //data+="<a href=\"#\" onclick=\"check2('"+ids+"',0,'设为审核不通过',0,1,'"+users+"',1)\">设为审核不通过</a>";
+						  }
+						  document.getElementById("tdc"+ids).innerHTML=data;	
+				  }else{
+					  document.getElementById("tds"+ids).innerHTML="未签到";
+					  if(auts==1){
+					      	data+="<a href=\"#\" onclick=\"check('"+ids+"',1,'签到',1,"+audit+",'"+users+"',0,'"+userId+"')\">签到</a>";
+						  }else{
+							data+="<a href=\"#\" onclick=\"check('"+ids+"',0,'未签到',0,"+audit+",'"+users+"',1,'"+userId+"')\">设为未签到</a>";
+						  }
+						  if(audit==0){
+							  data+="<a href=\"#\" onclick=\"check2('"+ids+"',1,'设为审核通过',1,0,'"+users+"',0,'"+userId+"')\">设为审核通过</a>";
+						  }else{
+							  //data+="<a href=\"#\" onclick=\"check2('"+ids+"',0,'设为审核不通过',0,1,'"+users+"',1)\">设为审核不通过</a>";
+						  }
+						  document.getElementById("tdc"+ids).innerHTML=data;	
+				  }
+				 			
+				  $("#stateConfirm").dialog( "close" );
+			  	  return true;
+			  } 
+			  if(data == 1) {
+				  alert("操作失败!");
+			  	  return false;
+			  } 
+			  if(data == 3) {
+				  alert("登录超时!");
+				  document.getElementById("logout").submit();
+			  	  return false;
+			  } 
+			  if(data == 4) {
+				  alert("报名会员未通过审核,请先审核后操作!");
+				  $("#stateConfirm").dialog( "close" );
+			  	  return false;
+			  } 
+		  },
+		  error: function(err) {
+			  alert("操作失败");
+		  }
+	});
+}
+
+
+function auditEvent(id,signup,names,audit,users,auts,userId) {
+	//提交
+	jQuery.ajax({
+		  type: 'POST',
+		  url: '${base}/eventadmin/auditSignUp',
+		  data:"UserEventId="+id+"&audit="+signup+"&signup=",
+		  success: function(data) {
+			  if(data == 0 || data==4) {//成功
+				  var data="<a href=\"#\" onclick=\"info('"+userId+"','${base}/adminuser/queryuser','1')\">查看</a>&nbsp;&nbsp;";
+				  if(names==1){
+					  document.getElementById("tda"+ids).innerHTML="<font color=green>已审核通过</font>";
+					  	  if(auts==0){
+					      	data+="<a href=\"#\" onclick=\"check('"+ids+"',1,'签到',1,1,'"+users+"',0,'"+userId+"')\">签到</a>";
+						  }else{
+							data+="<a href=\"#\" onclick=\"check('"+ids+"',0,'未签到',0,1,'"+users+"',1,'"+userId+"')\">设为未签到</a>";
+						  }
+						  if(audit==1){
+							  data+="<a href=\"#\" onclick=\"check2('"+ids+"',1,'设为审核通过',1,0,'"+users+"','"+auts+"','"+userId+"')\">设为审核通过</a>";
+						  }else{
+							 // data+="<a href=\"#\" onclick=\"check2('"+ids+"',0,'设为审核不通过',0,1,'"+users+"','"+auts+"')\">设为审核不通过</a>";
+						  }
+						  document.getElementById("tdc"+ids).innerHTML=data;	
+				  }else{
+					  document.getElementById("tda"+ids).innerHTML="未审核通过";
+					  if(audit==1){
+						  data+="<a href=\"#\" onclick=\"check2('"+ids+"',1,'设为审核通过',1,0,'"+users+"','"+auts+"','"+userId+"')\">设为审核通过</a>";
+					  }else{
+						  //data+="<a href=\"#\" onclick=\"check2('"+ids+"',0,'设为审核不通过',0,1,'"+users+"','"+auts+"')\">设为审核不通过</a>";
+					  }
+						  document.getElementById("tdc"+ids).innerHTML=data;	
+				  }
+				  $("#stateConfirm2").dialog( "close" );
+			  	  return true;
+			  } 
+			  if(data == 1) {
+				  alert("操作失败!");
+			  	  return false;
+			  } 
+			  if(data == 3) {
+				  alert("登录超时!");
+				  document.getElementById("logout").submit();
+			  	  return false;
+			  } 
+		  },
+		  error: function(err) {
+			  alert("操作失败");
+		  }
+	});
+}
+
+$(function() {
+	$('#Pagination').pager({
+      currPage: ${page.getCurrentPageNo()},
+      pageNOName: "pageNo",
+      form: "searchForm",
+      pageCount: ${page.getTotalPageCount()},
+      pageSize: ${page.getPageSize()}
+    });
+	$( "#checkDialog" ).dialog({
+		autoOpen: false,
+		show: "clip",
+		hide: "explode",
+		modal: true,
+		width:750,
+		height:400,
+        buttons:{
+            "关闭": function() {
+                $( this ).dialog( "close" );
+            }
+        }
+	});
+	$("#usertip li").live('click',function(){
+		$("#search_name").val($(this).text());
+		$(".searchListBox").hide();
+		$(".search").click();
+	});
+	
+	$(".searchListBox").hide();
+	$("input[name='name']").keyup(function(){
+		if($(this).val().length==0)
+		{
+				$(".searchListBox").hide();
+				return;
+		}
+		//提交
+		jQuery.ajax({
+			  type: 'POST',
+			  url: '${base}/adminuser/queryUserByNamespy',
+			  data:"name="+$(this).val()+"&start=$!{start}&eventId=$!{eventId}",
+			  success: function(data) {
+				  if(data.success)
+				  {
+					var result = data.content;
+					$("#usertip").empty();
+					for(var vo in result)
+						$("#usertip").append("<li>"+result[vo].username+"</li>");
+					$(".searchListBox").show();
+				  }
+			  },
+			  error: function(err) {
+			  }
+		});
+	});
+});
+function info(id,url,audit){
+	ids=id;
+	audits=audit;
+	$("#checkDialog").load(url+"?userId="+id);
+	$( "#checkDialog" ).dialog( "open" );
+		return false;
+	}
+</script>
+</head>
+<body>
+<div class="grid_nav">
+	<form id="searchForm" action="" method="post">
+      <div class="grid_head"> &nbsp;&nbsp;
+        <input type="text" name="name"  value="$!{name}" class="text ui-corner-all"  id="search_name"/> 
+        <div class="searchListBox">
+         <ul id="usertip">
+		 </ul>
+        </div>
+        &nbsp;&nbsp; <button class="search" type="submit">搜索</button>
+      </div>
+      <table width="100%" border="0" class="grid">
+        <tr>
+          <th width="3%">&nbsp;</th>
+          <th width="8%">姓名</th>
+          <th width="5%">性别</th>
+          <th width="10%">邮箱</th>
+          <th width="10%">是否签到</th>
+          <th width="8%">是否审核通过</th>
+          #if($!{strat})#else<th width="8%">操作</th>#end
+        </tr>
+        #foreach($userEvent in $!{page.result} )
+        <tr>
+          <td>$velocityCount</td>
+          <td>$!{userEvent.user.name}</td>
+          <td>
+         	#if($!{userEvent.user.sex}=="0")保密#end
+			#if($!{userEvent.user.sex}=="1")女#end
+			#if($!{userEvent.user.sex}=="2")男#end
+          </td>
+          <td>$!{userEvent.user.email}</td>
+          <td id="tds$!{userEvent.assignid}">#if($!{userEvent.signup}==0)未签到#else<font color="green">已签到</font>#end</td>
+          <td id="tda$!{userEvent.assignid}">#if($!{userEvent.audit}==0)未审核通过#else<font color=green>已审核通过</font>#end</td>
+          #if($!{strat})
+          #else
+          <td id="tdc$!{userEvent.assignid}"> 
+          <a href="#" onclick="info('$!{userEvent.user.userid}','${base}/adminuser/queryuser','$!{userEvent.user.state}')">查看</a>&nbsp;&nbsp;
+          #if($!{userEvent.signup}==0) 
+	          #if($!{userEvent.audit}==1)
+	          &nbsp;&nbsp;<a href="#" onclick="check('$!{userEvent.assignid}',1,'签到',1,$!{userEvent.audit},'$!{userEvent.user.name}','$!{userEvent.signup}','$!{userEvent.user.userid}')">签到</a>
+	          #end 
+          #else 
+	          #if($!{userEvent.audit}==1)
+	         &nbsp;&nbsp;<a href="#" onclick="check('$!{userEvent.assignid}',0,'未签到',0,$!{userEvent.audit},'$!{userEvent.user.name}','$!{userEvent.signup}','$!{userEvent.user.userid}')">设为未签到</a>
+	          #end
+          #end 
+	          #if($!{userEvent.audit}==0)
+	          <a href="#" onclick="check2('$!{userEvent.assignid}',1,'设为审核通过',1,$!{userEvent.audit},'$!{userEvent.user.name}','$!{userEvent.signup}','$!{userEvent.user.userid}')">设为审核通过</a>
+	          #else
+	          &nbsp;
+	          #end
+          #end
+          </td>
+        </tr>
+        #end
+      </table>
+      </form>
+    </div>
+    <div id="Pagination" class="pageNum clearfix"></div>
+    <div id="stateConfirm" title="操作提示">
+</div>
+ <div id="stateConfirm2" title="操作提示">
+</div>
+  <form action="${base}/lagouAdmin/logout" id="logout" target="_top"></form>
+</body>
+<div id="checkDialog" title="会员信息"></div>
+</html>

@@ -1,0 +1,97 @@
+ #parse("common/common.html")
+ <div class="info">
+ <h5 class="clearfix">会员信息</h5>
+<input id="flag" value="0" type="hidden"></input>
+ <table width="100%" border="0" class="grid">
+  <tr>
+    <td rowspan="6" width="20%">
+    #if(!$!{user.portrait}  || "" == $!{user.portrait})
+    <img src="${base}/template/admin/images/47.png" width="80" height="80" >
+    #else
+     <img src="$!{user.portrait}" width="80" height="80" >
+     #end
+    </td>
+    <td width="15%" class="right">姓名:</td>
+    <td width="30%" class="special">$!{user.name}</td>
+    <td width="13%" class="right">性别:</td>
+    <td width="32%" class="special">
+    		#if($!{user.sex}=="0")保密#end
+			#if($!{user.sex}=="1")女#end
+			#if($!{user.sex}=="2")男#end</td>
+  </tr>
+  <tr>
+    <td class="right">邮箱:</td>
+    <td class="special">$!{user.email}</td>
+    <td class="right">注册时间:</td>
+    <td class="special">$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{user.createtime})</td>
+  </tr>
+  
+    <tr>
+    <td class="right">好友数:</td>
+    <td class="special"> $!{user.friendscount}</td>
+    <td class="right">活动数:</td>
+    <td class="special" id="audit">$!{user.eventscount}</td>
+  </tr>
+  
+   <tr>
+    <td class="right">激活状态:</td>
+    <td class="special">
+    		#if($!{user.activated}=="0")未激活#end
+			#if($!{user.activated}=="1")已激活#end</td>
+    <td class="right">是否受限:</td>
+    <td class="special" id="audit">
+    		#if($!{user.state}=="0")受限#end
+			#if($!{user.state}=="1")不受限#end</td>
+  </tr>
+  <tr>
+    <td class="right">微博:</td>
+    <td class="special" colspan="3">#if($!{user.weibo})<a href="$!{user.weibo}"  target="_blank">$!{user.weibo}</a>#end</td>
+  </tr>
+  <tr>
+    <td class="right">简介:</td>
+    <td colspan="3" class="special">
+    	$!{user.summary}
+    </td>
+    </tr>
+</table>
+<h5 class="clearfix">联系方式</h5>
+<table width="100%" border="0" class="grid">
+  <tr>
+    <td width="15%"class="right">电话</td>
+    <td class="special">$!{user.phone}</td>
+  </tr>
+  <tr>
+    <td width="15%"class="right">邮箱</td>
+    <td class="special">$!{user.personalemail}</td>
+  </tr>
+</table>
+
+<h5 class="clearfix">工作经历</h5>
+<table width="100%" border="0" class="grid">
+  <tr>
+    <th width="5%" class="green">&nbsp;</th>
+    <th class="green">工作单位</th>
+    <th width="20%" class="green">职位</th>
+  </tr>
+  #foreach($work in $!{listWorkExperience} )
+  <tr>
+    <td>$velocityCount</td>
+    <td>$!{work.company.company}</td>
+    <td>$!{work.position}</td>
+  </tr>
+   #end
+</table>
+<h5 class="clearfix">教育经历</h5>
+<table width="100%" border="0" class="grid">
+  <tr>
+    <th width="5%" class="green">&nbsp;</th>
+    <th class="green">学校</th>
+  </tr>
+   #foreach($education in $!{listEducationExperience} )
+  <tr>
+    <td>$velocityCount</td>
+    <td>$!{education.school.school}</td>
+  </tr>
+  #end
+</table>
+</div>

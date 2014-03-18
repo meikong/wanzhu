@@ -1,0 +1,196 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/page.css" type="text/css"	rel="stylesheet" />
+<script src="${base}/template/admin/js/jquery.pager.js"></script>
+<div class="grid_nav">
+<input type="hidden" name="userurl" id="userurl" value="${base}/adminuser/Eventuser"></input>
+<form id="searchForm"  method="post" onsubmit="test();">
+<input type="hidden" name="checkboxvalue" id="checkboxs" value="$!{checkboxvalue}"></input>
+<div class="grid_head">
+ &nbsp;&nbsp;<input type="text" name="content" id="strcontent" value="$!{content}"  class="text ui-corner-all"/>&nbsp;&nbsp;<button type="submit" id="search" >搜索</button>
+</div>
+    <table width="100%" border="0" class="grid">
+      <tr>
+        <th width="3%"><input type="checkbox" id="all"></th>
+        <th width="8%">姓名</th>
+        <th width="10%">邮箱</th>
+        <th width="25%">简介</th>
+      </tr>
+      #foreach($user in $!{page.result} )
+      <tr>
+        <td>
+            #if($!{user.source}=="1")
+        		<input type="checkbox" id="check" value="$!{user.userid}" name="check" checked="checked"/>
+        	#else
+        	   <input type="checkbox" id="check" value="$!{user.userid}" name="check"/>
+        	#end 
+        </td>
+        <td class="name">$!{user.name}</td>
+        <td>
+        #set($strs=$!{user.email}) 
+   			#if($strs.length()>25)
+   			     #set($strs=$strs.substring(0,25))
+   			     $strs ...
+   			 #else
+     			$!{user.email}
+  			  #end
+        </td>
+        <td>
+        	#set($str=$!{user.summary}) 
+   			#if($str.length()>17)
+   			     #set($str=$str.substring(0,17))
+   			     $str ...
+   			 #else
+     			$!{user.summary}
+  			  #end
+        </td>        
+      </tr>
+      #end
+    </table>
+</div>
+<div id="Pagination" class="pageNum clearfix"></div>
+</from>
+<script>
+function test()
+{
+	var arrUser=new Array(); 
+	var arrName=new Array();
+	$("input[name='check']:checkbox:checked").each(function(i){
+		arrUser[i]=$(this).val();
+		arrName[i]=$(this).parent().next("td.name").text();
+	});
+	if(parent.arrUser){
+		if(parent.arrUser.length==0){
+			parent.arrUser=arrUser;
+			parent.arrName=arrName;
+		}else{
+			var paLength=parent.arrUser.length;
+			if(arrUser.length!=0){
+					for ( var i = 0; i < arrUser.length; i++) {
+						parent.arrUser[paLength]=arrUser[i];
+						parent.arrName[paLength]=arrName[i];
+						paLength++;
+					}
+					var str=document.getElementsByName("check");
+					var objarray=str.length;
+					var chestr="";
+					var ck=parent.arrUser;
+					for ( var c = 0; c < ck.length; c++) {
+						for (i=0;i<objarray;i++)
+						{
+							if(str[i].checked==false){
+								 if(str[i].value == ck[c])
+								 {
+									 //删除匹配数组元素
+									 removeArray(ck[c]);
+								 }
+							}
+						}
+				   }
+			}else
+			{
+				var str=document.getElementsByName("check");
+				var objarray=str.length;
+				var chestr="";
+				var ck=parent.arrUser;
+				for ( var c = 0; c < ck.length; c++) {
+					for (i=0;i<objarray;i++)
+					{
+						if(str[i].checked==false){
+							 if(str[i].value == ck[c])
+							 {
+								 //删除匹配数组元素
+								 removeArray(ck[c]);
+							 }
+						}
+					}
+			   }
+			}
+			parent.arrUser=unique(parent.arrUser);
+			parent.arrName=unique(parent.arrName);
+		}
+	}
+}
+
+function indexOf(val) {
+	    for (var i = 0; i <  parent.arrUser.length; i++) {
+	        if (parent.arrUser[i] == val) {
+	            return i;
+	        }
+	    }
+	    return -1;
+	};
+function removeArray(val) {
+	    var index = indexOf(val);
+	    if (index > -1) {
+	    	 parent.arrUser.splice(index, 1);
+	    	 parent.arrName.splice(index, 1);
+	    }
+	};
+
+
+window.onload = function(){
+	if(parent.arrUser) {
+		var u=new Array();
+		u=parent.arrUser;
+		var str=document.getElementsByName("check");
+		var objarray=str.length;
+		var chestr="";
+		for ( var c = 0; c < u.length; c++) {
+			for (i=0;i<objarray;i++)
+			{
+				 if(str[i].value == u[c])
+				 {
+					 str[i].checked="checked" ;
+				 }
+			}
+	   }
+	}
+}
+
+function unique(data){ 
+	data = data || []; 
+	var a = {}; 
+	len = data.length; 
+	for (var i=0; i<len;i++){ 
+	var v = data[i]; 
+	if (typeof(a[v]) == 'undefined'){ 
+	a[v] = 1; 
+	} 
+	}; 
+	data.length=0; 
+	for (var i in a){ 
+		data[data.length] = i; 
+	} 
+	return data; 
+} 
+
+$(function(){
+  $( "#search" ).button({
+            icons: {
+                primary: "ui-icon-search"
+            }
+        });	 
+  $("#all").click(function(){
+	
+  var checked=$(this).attr("checked");
+  if(checked == null && checked != "checked"){
+	    checked=false;
+	  }
+  $("input[name='check']").each(function(){										 
+  		$(this).attr("checked",checked);
+  });  
+ });
+		$('#Pagination').pager({
+	      currPage: ${page.getCurrentPageNo()},
+	      pageNOName: "pageNo",
+	      form: "searchForm",
+	      pageCount: ${page.getTotalPageCount()},
+	      pageSize: ${page.getPageSize()}
+	    });
+});
+</script>

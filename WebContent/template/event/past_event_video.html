@@ -1,0 +1,277 @@
+		#parse("common/include_web.html")
+		<meta content="$!{event.subtopic}" name="description">
+		<meta content="$!{event.topic}" name="description">
+		<script src="${base}/js/discuz.js" type="text/javascript"></script>
+		<script type="text/javascript" src="${base}/js/event/past_detail.js" ></script>
+		
+		<!-- styles needed by jScrollPane -->
+		<link type="text/css" href="${base}/css/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+		
+		<!-- the mousewheel plugin - optional to provide mousewheel support -->
+		<script type="text/javascript" src="${base}/js/event/jquery.mousewheel.js"></script>
+		
+		<!-- the jScrollPane script -->
+		<script type="text/javascript" src="${base}/js/event/jquery.jscrollpane.js"></script>
+				
+		<script type="text/javascript">
+			function init() {
+				listSignedInUsers('${event.eventid}','0','5');
+				
+				//var hyperText = document.getElementById("sumarycontainer").innerHTML;
+				var hyperText = $("#sumarycontainer").html();
+				if(hyperText && hyperText.trim() != "") {
+					var plainText = convertContentToPlainText(hyperText);
+					if(plainText.length > 300) {
+						var substr = plainText.substr(0, 300);
+						document.getElementById("sumaryContent").innerHTML = substr + '...&nbsp;<a onclick="sumarySeeMore();"><font color="green">显示全部&raquo;</font></a>';
+					} else {
+						document.getElementById("sumaryContent").innerHTML = hyperText;
+					}
+				}
+				
+				window.scroll(0,170);
+			}
+			
+			//加载5条活动相关文章
+			/* function loadRelatedArticles()
+			{
+				var size = 5;
+				jQuery.ajax({
+					type : 'POST',
+					dataType : "json",
+					url : '${base}/activity/queryActivitiesOfFriend.json',
+					data : "eventId=$!{event.eventid}&currentPage=1&pageSize="+size,
+					success : function(data) {
+							if(data.msg==20003)
+								return;
+							var result = data.content.result;
+							if(data.success && null != result && result.length>0)
+							{
+								var title = "";
+								for(var vo in result)
+								{
+									var appendContent = "<li><a href='#'>传统企业触电——避免线上线下互博</a></li>";
+									$(".relatedArticle").append(appendContent);
+								}
+								//是否显示查看更多链接
+								if(data.content.totalCount>size) $("#MoreactivityOfFriendDiv").show();
+							}
+					},
+					error : function(err) {
+					},
+					complete : function() {
+					}
+				});
+			} */
+			
+			$(function(){
+				$(".videoLists ul").css({"width":167*$(".videoLists ul li").length+"px"});
+				$(".videoLists ul li").eq(0).addClass('curr');
+				$('.scroll-pane').jScrollPane();
+				$('#container .scroll-pane li').click(function(e){
+					var _len = $(this).attr("id").length;
+					var _no = $(this).attr("id").slice(13,_len);
+					$('#container .scroll-pane li').removeClass('curr');
+					$(this).addClass('curr');
+					$("#container .videoWrapper li").each(function(){
+						if($(this).attr("id") == "videoBox"+_no){
+							$(this).removeClass("dn");
+						}else{
+							$(this).addClass("dn");
+						}
+					});
+				});
+				
+				//加载5条活动相关文章
+				//loadRelatedArticles();
+			});
+		</script>
+	</head>
+
+	<body onload="init();">
+		#parse("common/head.html")
+		<div id="container" class="clear">
+    		<div class="content">
+    			<div class="breadcrumb">
+    				<a href="${base}/index.html">首页</a> >
+    				<a href="${base}/event/d_$!{event.eventid}.html">$!{event.topic}</a> >
+    				<span>视频</span>
+    			</div>
+        		#set($hasVideo = false)
+				#set($hasPPT = false)
+				#set($hasText = false)
+				#foreach($sumary in $!{event.summaries})
+					#if($sumary.type == 0 )
+						#set($hasVideo=true)
+					#end
+					#if($sumary.type == 1)
+						#set($hasPPT=true)
+					#end
+					#if($sumary.type == 2 && $sumary.words != "")
+						#set($hasText=true)
+					#end
+				#end
+
+				<div class="infoBox">
+					#if($hasVideo)
+						<!-- #set($vc=0) -->
+						<!--#set($vc=0)
+						#set($vcCount = 0)
+						#set($pcCount = 0)
+							
+						 #foreach($sumary in $!{event.summaries})
+  							#if($sumary.type == 0)
+								#set($vcCount=$vcCount+1)
+							#elseif($sumary.type == 1)
+								#set($pcCount=$pcCount+1)
+							#end		
+						#end -->
+						<ul class="videoWrapper clear">
+   							#foreach($sumary in $!{event.summaries})
+   								#if($sumary.type == 0)
+   									#if($sumary.summaryid==$summaryid)
+  	    							<li  class="videoZoomBox"  id="videoBox$velocityCount">
+									#else
+									<li  class="videoZoomBox dn"  id="videoBox$velocityCount">
+									#end
+										<h2>$!{sumary.words}</h2>
+   										<!-- <h5 class="clearfix"><span>#if($sumary.videoSource==1)<a href="http://www.bokecc.com"  target="_blank">本视频由CC视频提供</a></span>#end
+   											<a onclick="HideFlash($!{sumary.videoSource}, $velocityCount)"><img src="${base}/images/arrow_09.gif" />收起</a>
+   										</h5> -->
+   										
+   										<div class="videoZoom">
+   											#if($sumary.videoSource==1)
+	   											<script src='http://union.bokecc.com/player?vid=$!{sumary.url}&siteid=B4C0EC5BFEA07FF1&autoStart=false&width=650&height=500&playerid=A598906280AB7FAF&playertype=1' type='text/javascript'></script>
+	   										#else
+	   										
+	   										    <iframe id="youkuVideo$velocityCount" height="490" width="600" src="" frameborder=0 allowfullscreen></iframe>
+	   										#end
+	   										<!-- <div class="fl">已播放<span>1</span>次</div> -->
+	   										#if($sumary.videoSource==1)
+	   											<a href="http://www.bokecc.com" class="fl" target="_blank">本视频由CC视频提供</a>
+	   										#end
+	   										<div class="fr">分享到：<a href="javascript:(function(){window.open('http://v.t.sina.com.cn/share/share.php?
+	title='+encodeURIComponent('我在3W发现了一个精彩的活动视频：$!{sumary.words}，分享一下')+'&appkey=569452181'+'&pic='+encodeURIComponent($('#eventImg').attr('src'))+'&url='+encodeURIComponent(location.href)
+	+'&source=3wcoffee','_blank','width=600,height=500');})()" class="weibo">&nbsp;</a></div>
+   										</div>
+	   								</li>
+   								<!-- #set($vc=$vc+1) -->
+   								#end
+   							#end
+   						</ul>
+   						<div class="videoLists br5"><div class="scroll-pane horizontal-only">
+	   						<ul>
+	   							#set($vCount = 0)
+	   							#foreach($sumary in $!{event.summaries})
+	   								#if($sumary.type == 0)
+	  	    							
+	  	    							<li class="videoBox" id="videoSmallBox$velocityCount" #if($vCount == 0) style="margin-left:0;" #end>
+	  	    								
+	    										<div class="itemImg" title="$!{sumary.words}">
+	    											<!-- <span class="clearfix">
+	    												#set($hour = $sumary.duration / 3600)
+	    												#set($minus = ($sumary.duration % 3600) / 60 )
+	    												#set($sec = ($sumary.duration % 3600) % 60 )
+	    												#if($!{sumary.duration})${hour}:#if($minus<10)0${minus}#else${minus}#end:#if(${sec}<10)0${sec}#else${sec}#end#else 未知#end
+	    												<em><a onclick="ShowFlash('$!{sumary.url}', $!{sumary.videoSource}, $velocityCount)">
+	    													
+	    													<img src="${base}/images/arrow_05.png" />
+	    													<label id="playCount$velocityCount" _val="${sumary.summaryid}">$!{sumary.downloadcount}</label></a></em>
+	    													
+														</em>
+	  													</span> -->
+	  												<div class="acti_im">
+												    	<img width="146" height="94" alt="" id="eventImg" class="br5"
+												    	#if(${sumary.snapshot})
+	   														src="${sumary.snapshot}" 
+	   													#else
+	   														src="${base}/images/noPic_02.jpg" 
+	   													#end />
+												        <i></i>
+												    </div>
+												    <div class="video_title">$display.truncate($!{sumary.words},12,"...")</div>
+												    <!-- <a onclick="ShowFlash('$!{sumary.url}', $!{sumary.videoSource}, $velocityCount)"><span class="arr"></span></a> -->
+	    										</div>
+	    								</li>
+	    								#set($vCount = $vCount + 1)
+	  	    						#end
+	   							#end
+	   						</ul>
+	   						</div>
+   						</div>
+   					#end
+				</div>
+			</div>
+			<div class="sidebar">
+				<div class="side_box br5">
+	            	<h4>所属活动</h4>
+					<a href="${base}/event/d_$!{event.eventid}.html">$!{event.topic}</a>
+	            </div> 
+	            #if($hasText)
+	            <dl class="opinion">
+	            	<dt>
+	                	<h2>相关文章</h2>
+	                	<!-- <a href="#" class="more link_b">查看更多>></a> -->
+	                </dt>
+	                <dd>
+	                	<ul class="relatedArticle">
+	                		#foreach($sumary in $!{event.summaries})
+		                		#if($sumary.type == 2)
+		                			<li><a href='${base}/event/articleList_${event.eventid}_${sumary.summaryid}.html'>$!{sumary.summaryTitle}</a></li>
+		                		#end
+	                		#end
+	                	</ul>
+	                </dd>
+	            </dl>
+	            #end
+	            <dl class="opinion">
+	            	<dt>
+	                	<h2 #if(!$hasVideo || !$hasText) class="mt0" #end>参加活动的人</h2>
+	                	<a href="javascript:listSignedInUsers('${event.eventid}')" id="searchMoreSignIn" class="more link_b dn">查看更多>></a>
+	                </dt>
+	                <dd>
+	                	<!-- 已报名好友 -->
+	                	<ul class="apply_list" id="siubox"></ul>
+	                	<!-- end -->
+	                    <!-- <div id="loading" class="loadingnobg"><img src="${base}/images/loading.gif" />加载中......</div>   -->
+						
+	                </dd>
+	            </dl>
+	            
+				<dl class="opinion">
+					<dt>
+						<h2 class="mt0 fl">最新活动</h2>
+						<a href="${base}/event/e_1_0_0.html" class="link_b fr">查看更多>></a>
+		            </dt>
+		            <dd>
+		            	<div id="slide_wrapper_sub">
+			            	<ul id="slideshow_sub">
+			                	 #foreach($event in $comingEvents)
+			                     	#set($posterUrl="src='${base}/images/noPic.jpg'" )
+									#foreach($summary in $!{event.summaries})
+										#if($summary.type==3)
+											#set($posterUrl=("src='$!{summary.snapshot}'"))
+										#end
+									#end
+									<li>
+										<a href="${base}/event/d_$!{event.eventid}.html" title="$!{event.topic}"><img $!{posterUrl} width="200" height="250" alt="" /></a>
+									</li>
+			                     #end
+			                </ul>
+			            </div>
+			            <!-- <div class="ctrl_btns_sub">
+			            	<a id="prev_sub" class="bctrl">&lt;</a>
+			        		<a id="next_sub" class="bctrl">&gt;</a>
+			        	</div> -->
+			        </dd>
+	            </dl>
+	            
+			</div>
+		</div>
+  
+  #parse("common/friends.html")
+  #parse("common/message.html")
+  #parse("common/aboutUser.html")
+		#parse("common/footer.html")
+	</body>
+</html>

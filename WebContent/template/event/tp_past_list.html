@@ -1,0 +1,78 @@
+<div class="itemBox clear"  id="$!{event.eventId}">
+	<a href="${base}/discuz/s_$!{event.eventId}.html">
+	<img 
+   		#if($!{event.hasPoster}) 
+			src="$!{event.posterUrl}" 
+  			#else
+			src="${base}/images/noPic.jpg" 
+  			#end
+   		width="200" height="250" /></a>
+	<div class="acti_info">
+        <a href="${base}/discuz/s_$!{event.eventId}.html" title="$!{event.topic}">
+			<h2>$!{event.topic}</h2>
+		</a>
+        <p>
+        	<span>分享嘉宾：
+        		<a href="${base}/discuz/s_$!{event.eventId}.html" class="name" uid=''  point=''>$!{event.shareman}</a>
+        		#foreach($!{lectrue} in $!{event.lectrues}) 
+				   <a href="${base}/user/f_$!{lectrue.userId}.html" class="name tipALink" uid='$!{lectrue.userId}'  point='$!{event.eventId}'>$!{lectrue.name}</a>
+				#end
+        	</span><br />
+           
+           	 地点：$!{event.place}<br />
+                                    时间：
+				#set($format="yyyy年MM月dd日 HH:mm")
+				#if(${dateTool.year}==$!{dateTool.getYear($!{event.startTime})})
+					#set($format="MM月dd日 HH:mm")
+				#end
+				$dateTool.format($format,
+				$!{event.startTime}) - #if($dateTool.format("yyyyMMdd",
+				$!{event.startTime}) == $dateTool.format("yyyyMMdd",
+				$!{event.endTime})) $dateTool.format("HH:mm", $!{event.endTime})
+				#else $dateTool.format($format, $!{event.endTime}) #end
+			
+      	</p>
+			<div class="btnOver br5">活动结束</div>
+	</div>
+</div>
+
+<!-- <div class="past_event"  id="$!{event.eventId}">
+	#if($hasVideo)
+	<a href="${base}/event/videoList_$!{event.eventId}_.html">
+	#else
+	<a href="${base}/event/d_$!{event.eventId}.html">
+	#end
+		<div class="acti_im">
+	    	<img #if($!{event.hasPoster}) 
+        			src="$!{event.posterUrl}"
+				#else src="${base}/images/noPic.jpg" #end
+			 	class="br5" width="146" height="94" alt="" />
+	        <i></i>
+	    </div>
+	</a>
+    <div class="acti_cont">
+    	#if($hasVideo)
+		<a href="${base}/event/videoList_$!{event.eventId}_.html" title="$!{event.topic}">
+		#else
+		<a href="${base}/event/d_$!{event.eventId}.html" title="$!{event.topic}">
+		#end
+    	<h3>$!{event.topic}</h3></a>
+   		<div class="acti_shareman">分享嘉宾：
+	   		<a class="name tipALink" uid=''  point='$!{event.eventid}'>$!{event.shareman}</a>
+			#foreach($!{lectrue} in $!{event.lectrues}) 
+				<a  class="name  tipALink"   uid='${lectrue.userId}'  point='$!{event.eventId}' 
+					href="${base}/user/f_${lectrue.userId}.html">$!{lectrue.name}</a>
+			#end
+		</div>
+		<div>时间：#set($format="yyyy年MM月dd日 HH:mm")
+				#if(${dateTool.year}==$!{dateTool.getYear($!{event.startTime})})
+					#set($format="MM月dd日 HH:mm")
+				#end
+				$dateTool.format($format,
+				$!{event.startTime}) - #if($dateTool.format("yyyyMMdd",
+				$!{event.startTime}) == $dateTool.format("yyyyMMdd",
+				$!{event.endTime})) $dateTool.format("HH:mm", $!{event.endTime})
+				#else $dateTool.format($format, $!{event.endTime}) #end
+		</div>
+   	</div>
+</div>-->

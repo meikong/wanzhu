@@ -1,0 +1,75 @@
+#parse("common/include_web.html")
+<script type="text/javascript" src="${base}/js/friends/friends.js"></script>
+<script src="${base}/js/jquery.blockUI.js"></script>
+<script type="text/javascript">
+		$(function(){
+			$("#addFriendBtn").click(addFriend);
+		});
+		function add(friendid){
+			$("#addFriend_friendId").val(friendid);
+			$("#invitation").val("");
+			$("#tempALink").click();
+		}
+</script>
+<!-- <style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+</style> -->
+
+</head>
+
+<body>
+#parse("common/head.html")
+<a href="#TB_inline?width=380&height=220&inlineId=addFriendNav"  style="display:none;" id="tempALink"  title="加好友" class="thickbox">&nbsp;</a>
+<div id="addFriendNav" style="display:none;">
+        <div class="messageBoxPop">
+        	<input type="hidden"  id="userId" value='$!session.getAttribute("USER_CONTEXT").getUserid()'/>
+        	<input type="hidden" id="addFriend_friendId" value="$!{user.userid}"/>
+            <textarea  id="invitation" cols="" rows="3"  placeholder="跟对方打个招呼呗～～随便说点什么..."></textarea>
+            <input type="button" value="发 送" class="br5 btn_login"  id="addFriendBtn" />
+        </div>
+</div>
+
+<div id="loginNav" style="display:none;">
+#parse("common/login.html")
+</div>
+<div id="container" class="clear">
+ 	<div class="content">
+         <h2 class="mt0">已报名【$!{topic}】的人</h2>
+       
+         <!-- 错误提示 -->
+         #if($!{errorCode})
+         <div class="promptBox"><em>#errorMsg($!{errorCode})</em></div>
+         #end
+         <!-- 加载数据 -->
+         <div class="clear">
+            #foreach($!{data} in $!{list})
+            <div class="feedBox clear">
+                    <a href="${base}/user/f_$!{data.userid}.html" class="portrait"><img src="$!{data.portrait}" width="44" height="44" class="br3" /></a>
+                    <div class="itemInfo">
+                        <div class="clear">
+                        	<a href="${base}/user/f_$!{data.userid}.html"><strong>$!{data.name}</strong></a>
+                        	#if($!session.getAttribute("USER_CONTEXT").getUserid())
+           						#if($!session.getAttribute("USER_CONTEXT").getUserid() !=$!{data.userid})
+           						 	#if($!{data.isfriend}==1)
+	             						<a id="friendNav_$!{data.userid}" href="javascript:del('$!{data.userid}','$!session.getAttribute('USER_CONTEXT').getUserid()')" class="fr link_b">删除好友</a>
+	             					#else
+	             						<a id="friendNav_$!{data.userid}" href="javascript:add('$!{data.userid}')" class="fr link_b">加为好友</a>
+	             					#end
+	           					#end
+           					#end
+                        </div>
+                        <div class="grey12">$!{data.company} $!{data.position}</div>
+                        <div class="clear">
+                        	好友<em>（$!{data.friendscount}）</em>
+                        	活动<em>（$!{data.eventscount}）</em>
+                       	</div>         
+                    </div>
+            </div>
+            #end  
+        </div>
+    </div>
+</div>
+
+#parse("common/footer.html")
+</body>
+</html>

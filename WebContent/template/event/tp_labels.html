@@ -1,0 +1,10 @@
+
+	   	<h2>活动标签</h2>
+    
+    	<ul id="labels" class="nodot">
+    		#foreach($sumary in $!{event.summaries})
+     		#if($sumary.type == 2)
+     			<li #if($sumary.summaryid == $summaryId) class="dn" #end><a href='${base}/event/articleList_${event.eventid}_${sumary.summaryid}.html'>$!{sumary.summaryTitle}</a></li>
+     		#end
+    		#end
+    	</ul>

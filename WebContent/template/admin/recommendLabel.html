@@ -1,0 +1,438 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>标签排序</title>
+#parse("common/common.html")
+  <link rel="stylesheet" href="${base}/template/admin/css/homePage/jquery-ui.css" />
+  <link rel="stylesheet" href="${base}/template/admin/css/homePage/tab.css" />
+  <link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+  <link href="${base}/template/admin/css/page.css" type="text/css"	rel="stylesheet" />
+  <link	href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css"	type="text/css" rel="stylesheet" />
+  <script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+  <script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+  <script src="${base}/template/admin/js/jquery.pager.js"></script>
+  <script>
+  var singleOldArray = new Array();//单页显示的原始数据数组
+  var singleUpdateArray = new Array();//单页显示的，变更后数组
+  //var singleNeedUpdateArray = new Array();//单页显示的，需要更改的数组
+  
+  var oldArray = new Array();//分页显示的原始数据数组
+  var updateArray = new Array();//分页显示的，变更后数组
+  $(function() {
+    $( "#tabs" ).tabs();
+    $( "#search" ).button({
+        icons: {
+            primary: "ui-icon-search"
+        }
+    });
+    $('#Pagination').pager({
+	      currPage: ${page.getCurrentPageNo()},
+	      pageNOName: "pageNo",
+	      form: "searchForm",
+	      pageCount: ${page.getTotalPageCount()},
+	      pageSize: ${page.getPageSize()}
+	});	
+    
+  });
+  function enable(){
+	  $("#eventtitle").show(); 
+	  $("#recommend").show(); 
+  }
+  </script>
+</head>
+<body>
+ 
+<div id="tabs" class="grid_nav">
+	<div id="recommend" style="display:none" class="grid_head"> 
+		<span id="add">已推荐：</span>
+		<div style="float:right; margin-right:10px;margin-top:0px;">
+			<button id="single-save" style="display:none" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">保存修改</button>
+		</div>
+	</div>
+    <table width="100%" border="0" class="grid" id="single-page-grid">
+    	 <tr id='eventtitle' style="display:none">
+        	<th width="0%" nowrap="nowrap" style="display:none">&nbsp;</th>
+        	<th width="10%" nowrap="nowrap" style="display:none">排序</th>
+	        <th width="2%">&nbsp;</th>  
+	        <th width="20%">标签</th>  
+	        <th width="20%">备注</th>      
+	        <th width="10%">标签类型</th>  
+	        <th width="15%">创建时间</th>
+	        <th width="5%" nowrap="nowrap">操作</th> 
+	        <th width="15%" nowrap="nowrap">移动</th>
+	      </tr>
+       #foreach($vo in $!{vos})
+      <tr>
+      	<td style="display:none">$!{vo.labelid}</td>
+      	<td style="display:none">$!{vo.showorder}</td>
+        <td></td>
+        <td>$!{vo.label}</td>
+        <td>$!{vo.memo}</td>       
+        <td>
+        #if($!{vo.type}=="0")
+        	<font color="red">系统标签</font>
+        #else
+        	用户标签
+        #end  
+        </td>  
+        <td>$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{vo.createtime})</td> 
+        <td nowrap="nowrap"><a href="${base}/adminHomePageSetting/recommendLabel?labelid=$!{vo.labelid}&kind=0"><font color="green">移除</font></a></td>
+        <td nowrap="nowrap"><a href="javascript:void(0);" class="up-single-page"><font color="green">上移</font></a>&nbsp;|&nbsp;<a href="javascript:void(0);" class="down-single-page"><font color="green">下移</font></a>&nbsp;|&nbsp;<a href="javascript:void(0);" class="top-single-page"><font color="green">置顶</font></a>&nbsp;|&nbsp;<a href="javascript:void(0);" class="bottom-single-page"><font color="green">置底</font></a></td>
+      </tr>
+      #end
+	</table>
+	#foreach($vo in $!{vos})
+		<script>
+			singleOldArray.length = 0;
+			singleUpdateArray.length = 0;
+			enable();
+	    </script>
+	    #break
+	#end
+<!-- 标签  -->
+<div style="float:right;margin-right:10px;margin-top:10px;">
+	<button id="per-save" style="display:none" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">保存修改</button>
+</div>
+<form id="searchForm" action="" method="post">
+	<div class="grid_head" >
+		<span id="add" >未推荐标签：</span>
+		<div style="float:right; margin-right:10px;margin-top:0px;">
+			<input type="text" id="content" name="content" value="$!{content}" class="text ui-corner-all"/>&nbsp;&nbsp;
+			<button id="search" onclick="$('#searchForm').submit();">搜索</button>
+		</div>
+		<input name="currentPageNo" id="currentPageNo" style="display:none" value='${page.getCurrentPageNo()}'/>
+		<input name="currentpageSize" id="currentpageSize" style="display:none" value='${page.getPageSize()}'/>
+		<input name="id" id="currId" style="display:none"/>
+		<input name="type" id="currType" style="display:none" value='3'/>
+		<input name="kind" id="currKind" style="display:none" value='1'/>
+	</div>
+	#foreach($label in $!{page.result})
+		<script>
+			oldArray.length = 0;
+			updateArray.length = 0;
+	    </script> 
+	    #break
+	#end
+      <table width="100%" border="0" class="grid" id="per-page-grid">
+        <tr>
+        	<th width="0%" nowrap="nowrap" style="display:none">&nbsp;</th>
+        	<th width="10%" nowrap="nowrap" style="display:none">排序</th>
+	        <th width="2%">&nbsp;</th>  
+	        <th width="20%">标签</th>  
+	        <th width="20%">备注</th>      
+	        <th width="10%">标签类型</th>  
+	        <th width="15%">创建时间</th> 
+	        <th width="5%" nowrap="nowrap">操作</th>
+	        <th width="15%" nowrap="nowrap">移动</th>
+	      </tr>
+       #foreach($label in $!{page.result})
+      <tr>
+      	<td style="display:none">$!{label.labelid}</td>
+      	<td style="display:none">$!{label.showorder}</td>
+        <td></td>
+        <td>$!{label.label}</td>
+        <td>$!{label.memo}</td>       
+        <td>
+        #if($!{label.type}=="0")
+        	<font color="red">系统标签</font>
+        #else
+        	用户标签
+        #end  
+        </td>  
+        <td>$dateTool.format("yyyy-MM-dd HH:mm:ss",$!{label.createtime})</td> 
+        <td nowrap="nowrap"><a href="${base}/adminHomePageSetting/recommendLabel?labelid=$!{label.labelid}&kind=1"><font color="green">推荐</font></a></td>
+        <td nowrap="nowrap"><a href="javascript:void(0);" class="up-per-page"><font color="green">上移</font></a>&nbsp;|&nbsp;<a href="javascript:void(0);" class="down-per-page"><font color="green">下移</font></a>&nbsp;|&nbsp;<a href="javascript:void(0);" class="top-per-page"><font color="green">置顶</font></a>&nbsp;|&nbsp;<a href="javascript:void(0);" class="bottom-per-page"><font color="green">置底</font></a></td>
+      </tr>
+      #end
+    </table>
+  </form>
+   <div id="Pagination" class="pageNum clearfix"></div>
+</div>
+ 
+<script>
+
+/*初始化单页的原数组与update数组*/
+function initSingleOldArray(){
+	singleOldArray.length = 0;
+	var singleTrArray = $("#single-page-grid tr");
+	for(var i=1; i<singleTrArray.length; i++){
+		var tds = singleTrArray.eq(i).find('td');
+		var id = tds.eq(0).text();
+		var order = tds.eq(1).text();
+		singleOldArray.push(eval('(' + '{id:"' + id + '", order:' + order + '}' + ')'));
+	}
+}
+function initSingleUpdateArray(){
+	singleUpdateArray.length = 0;
+	var singleTrArray = $("#single-page-grid tr");
+	for(var i=1; i<singleTrArray.length; i++){
+		var tds = singleTrArray.eq(i).find('td');
+		var id = tds.eq(0).text();
+		var order = tds.eq(1).text();
+		singleUpdateArray.push(eval('(' + '{id:"' + id + '", order:' + order + '}' + ')'));
+	}
+}
+
+/*初始化分页的原数组与update数组*/
+function initOldArray(){
+	oldArray.length = 0;
+	var trArray = $("#per-page-grid tr");
+	for(var i=1; i<trArray.length; i++){
+		var tds = trArray.eq(i).find('td');
+		var id = tds.eq(0).text();
+		var order = tds.eq(1).text();
+		oldArray.push(eval('(' + '{id:"' + id + '", order:' + order + '}' + ')'));
+	}
+}
+function initUpdateArray(){
+	updateArray.length = 0;
+	var trArray = $("#per-page-grid tr");
+	for(var i=1; i<trArray.length; i++){
+		var tds = trArray.eq(i).find('td');
+		var id = tds.eq(0).text();
+		var order = tds.eq(1).text();
+		updateArray.push(eval('(' + '{id:"' + id + '", order:' + order + '}' + ')'));
+	}
+}
+$(function(){
+	$('#searchForm').attr('action', '${base}/adminHomePageSetting/queryLabels');
+	initSingleOldArray();//初始化节点，把数据加到array
+	initOldArray();//初始化节点，把数据加到array
+	
+	function isSingleOrderChangeOver(){
+		initSingleUpdateArray();
+		var flag = false;
+		for(var i=0; i<singleOldArray.length; i++){
+			if(singleUpdateArray[i].id != singleOldArray[i].id){
+				$("#single-save").css({"display":"block"});
+				flag = true;
+				break;
+			}
+		}
+		if(!flag)
+			$("#single-save").css({"display":"none"});
+	}
+
+	function isPerOrderChangeOver(){
+		initUpdateArray();
+		var flag = false;
+		for(var i=0; i<oldArray.length; i++){
+			if(updateArray[i].id != oldArray[i].id){
+				$("#per-save").css({"display":"block"});
+				flag = true;
+				break;
+			}
+		}
+		if(!flag)
+			$("#per-save").css({"display":"none"});
+	}
+	
+	
+	/*---------不分页 上移、下移、置顶、置底操作--------*/
+	//单页上移
+	$(".up-single-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		if(curr.prev().prev().length == 0){//最上的节点，什么都不做
+			alert("已经到顶啦！");
+			return;
+		}else{
+			var prevOrder = curr.prev().find('td').eq(1).text();//前一个节点的showorder
+			var currOrder = curr.find('td').eq(1).text();
+			curr.find('td').eq(1).text(prevOrder);
+			curr.prev().find('td').eq(1).text(currOrder);
+		}
+		curr.prev().before(curr);
+		isSingleOrderChangeOver();
+	});
+	//单页 下移
+	$(".down-single-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		if(curr.next().length == 0){
+			alert("已经到底啦！");
+			return;
+		}
+		var nextOrder = curr.next().find('td').eq(1).text();//前一个节点的showorder
+		var currOrder = curr.find('td').eq(1).text();
+		curr.find('td').eq(1).text(nextOrder);
+		curr.next().find('td').eq(1).text(currOrder);
+		curr.next().after(curr);
+		isSingleOrderChangeOver();
+	});
+	//单页置顶
+	$(".top-single-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		var top = curr;
+		var backupOrder = curr.find('td').eq(1).text();
+		while(top.prev().prev().length != 0){
+			var temp = top.prev().find('td').eq(1).text();
+			top.prev().find('td').eq(1).text(backupOrder);
+			backupOrder = temp;
+			top = top.prev();
+		}
+		curr.find('td').eq(1).text(backupOrder);
+		if(top == curr){
+			alert("已经到顶啦！");
+			return;
+		}
+		top.before(curr);
+		isSingleOrderChangeOver();
+	});
+	//单页置底
+	$(".bottom-single-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		var bottom = curr;
+		var backupOrder = curr.find('td').eq(1).text();
+		while(bottom.next().length != 0){
+			var temp = bottom.next().find('td').eq(1).text();
+			bottom.next().find('td').eq(1).text(backupOrder);
+			backupOrder = temp;
+			bottom = bottom.next();
+		}
+		curr.find('td').eq(1).text(backupOrder);
+		if(bottom == curr){
+			alert("已经到底啦！");
+			return;
+		}
+		bottom.after(curr);
+		isSingleOrderChangeOver();
+	});
+	
+	/*---------分页 上移、下移、置顶、置底操作--------*/
+	//分页上移
+	$(".up-per-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		if(curr.prev().prev().length == 0 && ${page.getCurrentPageNo()} == 1){//最上的节点，如果是第一页，什么都不做
+			alert("已经到顶啦！");
+			return;
+		}else if(curr.prev().prev().length == 0 && $("#per-save").is(":visible")){//跨页，且本来还有未保存的设置
+			alert("操作已经跨页，请先保存本页设置！");
+			return;
+		}else if(curr.prev().prev().length != 0){
+			var prevOrder = curr.prev().find('td').eq(1).text();//前一个节点的showorder
+			var currOrder = curr.find('td').eq(1).text();
+			curr.find('td').eq(1).text(prevOrder);
+			curr.prev().find('td').eq(1).text(currOrder);
+		}else{
+			//alert("跨页请求");
+			$('#currId').attr('value',oldArray[0].id);
+			$('#currKind').attr('value',1);//1--向上跨页 2--向下跨页
+			$('#currType').attr('value',3);//1--活动 2--文章 0--视频 3--标签
+			$('#searchForm').attr('action', "${base}/adminHomePageSetting/crossPageSaveOrder");
+			$('#searchForm').submit();
+		}
+		curr.prev().before(curr);
+		isPerOrderChangeOver();
+	});
+	//分页 下移
+	$(".down-per-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		if(curr.next().length == 0 && ${page.getTotalPageCount()} == ${page.getCurrentPageNo()}){
+			alert("已经到底啦！");
+			return;
+		}else if(curr.next().length == 0 && $("#per-save").is(":visible")){
+			alert("操作已经跨页，请先保存本页设置！");
+			return;
+		}else if(curr.next().length != 0){
+			var nextOrder = curr.next().find('td').eq(1).text();//前一个节点的showorder
+			var currOrder = curr.find('td').eq(1).text();
+			curr.find('td').eq(1).text(nextOrder);
+			curr.next().find('td').eq(1).text(currOrder);
+		}else{
+			//alert("跨页请求");
+			//alert(oldArray[oldArray.length-1].id);
+			$('#currId').attr('value',oldArray[oldArray.length-1].id);
+			$('#currKind').attr('value',2);//1--向上跨页 2--向下跨页
+			$('#currType').attr('value',3);//1--活动 2--文章 0--视频 3--标签
+			$('#searchForm').attr('action', "${base}/adminHomePageSetting/crossPageSaveOrder");
+			$('#searchForm').submit();
+		}
+		curr.next().after(curr);
+		isPerOrderChangeOver();
+	});
+	//分页置顶
+	$(".top-per-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		var top = curr;
+		var backupOrder = curr.find('td').eq(1).text();
+		while(top.prev().prev().length != 0){
+			var temp = top.prev().find('td').eq(1).text();
+			top.prev().find('td').eq(1).text(backupOrder);
+			backupOrder = temp;
+			top = top.prev();
+		}
+		curr.find('td').eq(1).text(backupOrder);
+		if(top == curr){
+			alert("已经到顶啦！");
+			return;
+		}
+		top.before(curr);
+		isPerOrderChangeOver();
+	});
+	//分页置底
+	$(".bottom-per-page").bind('click', function(event) {
+		var curr = $(this).parents('tr');
+		var bottom = curr;
+		var backupOrder = curr.find('td').eq(1).text();
+		while(bottom.next().length != 0){
+			var temp = bottom.next().find('td').eq(1).text();
+			bottom.next().find('td').eq(1).text(backupOrder);
+			backupOrder = temp;
+			bottom = bottom.next();
+		}
+		curr.find('td').eq(1).text(backupOrder);
+		if(bottom == curr){
+			alert("已经到底啦！");
+			return;
+		}
+		bottom.after(curr);
+		isPerOrderChangeOver();
+	});
+	
+	
+	$("#single-save").bind('click', function(event) {
+		jQuery.ajax({
+			type : 'POST',
+			dataType : "json",
+			url : '${base}/adminHomePageSetting/saveOrdered',
+			data : "currentPage="+${page.getCurrentPageNo()}+"&pageSize="+${page.getPageSize()}+"&type=3&updateArray="+JSON.stringify(singleUpdateArray),
+			success : function(data) {
+				initSingleOldArray();
+				isSingleOrderChangeOver();
+				alert("修改成功!");
+			},
+			error : function(err) {
+				alert("操作失败");
+			},
+			complete : function() {
+				
+				//alert("请求发送完成");
+			}
+		});
+	});
+	
+	$("#per-save").bind('click', function(event) {
+		jQuery.ajax({
+			type : 'POST',
+			dataType : "json",
+			url : '${base}/adminHomePageSetting/saveOrdered',
+			data : "currentPage="+${page.getCurrentPageNo()}+"&pageSize="+${page.getPageSize()}+"&type=3&updateArray="+JSON.stringify(updateArray),
+			success : function(data) {
+				initOldArray();
+				isPerOrderChangeOver();
+				alert("修改成功!");
+			},
+			error : function(err) {
+				alert("操作失败");
+			},
+			complete : function() {
+				//alert("请求发送完成");
+			}
+		});
+	});
+	
+	
+});
+</script>
+</body>
+</html>

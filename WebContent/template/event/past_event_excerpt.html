@@ -1,0 +1,152 @@
+		#parse("common/include_web.html")
+
+		<meta content="$!{event.subtopic}" name="description">
+		<meta content="$!{event.topic}" name="description">
+		<script src="${base}/js/discuz.js" type="text/javascript"></script>
+		<script type="text/javascript" src="${base}/js/event/past_detail.js" ></script>
+		<script src="${base}/js/jquery.blockUI.js"></script>
+		<script src="${base}/js/PlainText2RichText.js"></script>
+		<script type="text/javascript">
+			function init() {
+				#if($session.getAttribute("USER_CONTEXT"))
+					loadTopic('${event.eventid}', '$session.getAttribute("USER_CONTEXT").userid');
+				#end
+				listSignedInUsers('${event.eventid}','0');
+				
+				//var hyperText = document.getElementById("sumarycontainer").innerHTML;
+				var hyperText = $("#sumarycontainer").html();
+				if(hyperText && hyperText.trim() != "") {
+					var plainText = convertContentToPlainText(hyperText);
+					if(plainText.length > 300) {
+						var substr = plainText.substr(0, 300);
+						document.getElementById("sumaryContent").innerHTML = substr + '...&nbsp;<a onclick="sumarySeeMore();"><font color="green">显示全部&raquo;</font></a>';
+					} else {
+						document.getElementById("sumaryContent").innerHTML = hyperText;
+					}
+				}
+			}
+		</script>
+	</head>
+
+	<body onload="init();">
+		#parse("common/head.html")
+		<div id="container" class="clear">
+    		#set($hasVideo = false)
+			#set($hasPPT = false)
+			#set($hasText = false)
+			#set($count = 0)
+			#set($hasMoreText = false)
+			#set($hasWord = '')
+			#set($summaryTitle = '')
+			#foreach($sumary in $!{event.summaries})
+   				#if($sumary.type == 0)
+					#set($hasVideo=true)
+				#end
+				#if($sumary.type == 1)
+					#set($hasPPT=true)
+				#end
+				#if($sumary.type == 2  && $sumary.words != "" && $sumary.summaryid == $summaryId )
+					#set($hasText=true)
+					#set($hasWord = $sumary.words)
+					#set($summaryTitle = $sumary.summaryTitle)
+				#end
+				#if($sumary.type == 2  && $count > 1 )
+					#set($hasMoreText=true)
+				#end
+				#set($count = $count + 1)
+			#end
+    		<div class="content">
+    			<div class="breadcrumb">
+    				<a href="${base}/index.html">首页</a> >
+    				<a href="${base}/event/d_$!{event.eventid}.html">$!{event.topic}</a> >
+    				<span>正文</span>
+    			</div>
+				#if($hasText)
+					<div class="event_article">
+						<h2>$summaryTitle</h2>
+						$html.parse($hasWord)
+	                </div>
+	            #end
+					<!-- <div class="mainBox">
+							#if($hasText)
+								<div id="sumaryContent" class="content">
+	    						
+	    						</div>
+	    						<div id="sumarycontainer" style="display: none;">
+	    							#foreach($sumary in $event.summaries)
+	    								#if($sumary.type == 2)
+	    									$html.parse($sumary.words)
+	    								#end
+	    							#end
+	    						</div>
+							#end
+	
+					</div> -->
+			</div><!-- end .content -->
+		
+			<div class="sidebar">
+				<div class="side_box br5">
+	            	<h4>所属活动</h4>
+					<a href="${base}/event/d_$!{event.eventid}.html">$!{event.topic}</a>
+	            </div> 
+	            #if($hasMoreText)
+	            <dl class="opinion">
+	            	<dt>
+	                	<h2>相关文章</h2>
+	                	<!-- <a href="#" class="more link_b">查看更多>></a> -->
+	                </dt>
+	                <dd>
+	                	<ul class="relatedArticle">
+	                		#foreach($sumary in $!{event.summaries})
+		                		#if($sumary.type == 2)
+		                			<li #if($sumary.summaryid == $summaryId) class="dn" #end><a href='${base}/event/articleList_${event.eventid}_${sumary.summaryid}.html'>$!{sumary.summaryTitle}</a></li>
+		                		#end
+	                		#end
+	                	</ul>
+	                </dd>
+	            </dl>
+	            #end
+	            
+	            #parse("topic/topic_hot.html")
+	            
+	            #if($hasVideo)
+	            <dl class="opinion">
+	            	<dt>
+	                	<h2>活动视频</h2>
+	                	<!-- <a href="#" class="more link_b">查看更多>></a> -->
+	                </dt>
+	                <dd>
+	                	 #foreach($sumary in $!{event.summaries})
+							#if($sumary.type == 0)
+								<div class="acti_side">
+			                    	<a href="${base}/event/videoList_${event.eventid}_${sumary.summaryid}.html" class="acti_im br5">
+			                        	<img width="117" height="75" alt=""
+			                        					#if(${sumary.snapshot})
+	   														src="${sumary.snapshot}" 
+	   													#else
+	   														src="${base}/images/noPic_02.jpg" 
+	   													#end />
+			                            <i></i>
+			                        </a>
+			                        <div class="acti_cont">
+			                        	<a href="${base}/event/videoList_${event.eventid}_${sumary.summaryid}.html"><h3>$!{sumary.words}</h3></a>
+			                            
+			                        </div>
+			                    </div>
+			               	#end
+						#end
+	                </dd>
+	            </dl>
+	            #end
+			</div>
+		</div>
+		
+
+  
+  #parse("common/friends.html")
+  #parse("common/message.html")
+  #parse("common/aboutUser.html")
+  
+		#parse("common/footer.html")
+	</body>
+</html>

@@ -1,0 +1,422 @@
+		#parse("common/include_web.html")
+		<link rel="stylesheet" href="${base}/css/thickbox.css" type="text/css" />
+		<script type="text/javascript" src="${base}/js/thickbox-compressed.js"></script>
+		<script src="${base}/js/jquery.blockUI.js"></script>
+	<link href="${base}/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet">
+		<script type="text/javascript" src="${base}/js/jquery-ui.js" ></script>
+
+		<script type="text/javascript">
+			var size = 15;        //页大小
+			var start = 0;  	  //开始记录数
+			var isLoadComplete = false; //全部数据是否加载完毕
+			
+			//滚动加载
+			$(function(){
+				var scrollCount = 0;
+				$(window).bind("scroll", function() {
+					if(!isLoadComplete) {
+						$('#msgLists').each(function(){
+							if(scrollCount >= 2) {
+								$('#show').hide();  
+								$(".btnMore").show();
+								return ;
+							}				
+							var fold = $(window).height() + $(window).scrollTop();
+							if(fold >= $('#show').offset().top + 100) { 
+								$('#show').show();
+								loadMessage();
+							    scrollCount++;
+							}
+						});
+					}	
+				});	
+			});
+		
+			//初始化
+			function init() {
+				document.getElementById("msgLists").innerHTML = "";
+				loadMessage();
+			}
+			
+			function unReadContent(message) {
+				var html = "";
+				if(message.unreadcount > 0) {
+					if(message.unreadcount > 99) {
+						html = "<span>99+</span>";
+					} else {
+						html = "<span>" + message.unreadcount + "</span>";
+					}					
+				}
+				return html;
+			}
+			
+			//查看更多
+			function searchMore() {
+				loadMessage();
+			}
+			
+			//头像
+			function getPortrait(portrait) {
+				if(portrait == "")
+					return "${base}/images/icon_man.png";
+				else
+					return portrait;
+			}
+	
+			
+			//li mousehover
+			$("#usertip li.emailBox").live('mouseover',function(){
+				$(this).css("background-color","#ccc");
+			});
+			//li mouseout
+			$("#usertip li.emailBox").live('mouseout',function(){
+				$(this).css("background-color","#fff");
+			});
+			//选择
+			$("#usertip li.emailBox").live('click',function(){
+				var idStr=$(this).children(".itemInfo").attr("id");
+				var nameStr=$(this).children(".itemInfo").children("h5").text();
+				document.getElementById("friendId").value = idStr;
+				document.getElementById("friendName").value = nameStr;
+	     		$(".searchListBox ul").val("");
+				$(".searchListBox").hide();
+			});
+			function showUserTip() {
+				var _leftName = document.getElementById("friendName").value;
+				var availableFriends = new Array();
+				var availableFriendId = new Array();
+				if(_leftName != "") {
+					jQuery.post("${base}/user/queryUserLikeName.json", 
+							   {leftName: _leftName},	
+							   function(users) { 
+									//var html = "";
+									if(users.success && users.content.length > 0){
+										for(var i = 0; i < users.content.length; i++) {
+											  /* html += "<li class='emailBox clear'>"+
+						                      			"<div class='itemImg'><img src='" + getPortrait(users.content[i].portrait) + "' width='30' height='30' /></div>"+
+						                      			"<div class='itemInfo' id='" + users.content[i].userId + "'><h5>" + users.content[i].username + "</h5></div>"+
+						                  	  		  "</li>"; */ 
+
+						                  	availableFriends.push(users.content[i].username);
+						                  	availableFriendId.push(users.content[i].userId);
+								   		}
+										/* document.getElementById("usertip").innerHTML = html;
+										$(".searchListBox").show(); */
+									}
+									$( "#friendName" ).autocomplete({
+										source: availableFriends
+									});
+									var isExist = $.inArray($('#friendName').val(), availableFriends);
+									if(isExist == -1){
+										$("#friendId").val('');
+									}else{
+										$("#friendId").val(availableFriendId[isExist]);
+									}
+					});
+				}else{
+					jQuery("#friendId").val("");
+				}
+			}
+			
+			function gotoInfo(userId) {
+				location.href = "${base}/message/messageInfo.html?friendId=" + userId;
+			}
+			
+			function quickReply(userid, username, e) {
+				//阻止事件冒泡
+				if(e != null) {
+					if (e.stopPropagation)
+						e.stopPropagation();
+					else 
+						e.cancelBubble = true;
+				}
+				jQuery("#clickALink").click();
+				jQuery("#friendId").val(userid);
+				jQuery("#friendName").val(username);
+			}
+			
+			//获取私信
+			function loadMessage() {
+				jQuery.ajax({
+					type: "GET",
+					dataType: "json",
+					url: "${base}/message/queryMessages.json",
+					data: "start=" + start + "&size=" + size,
+					success: function(result) {
+						if(result.success) {
+							var html = "";
+							var messages = result.content;
+							for(var i = 0; i < messages.length; i++) {
+								html += "<div class='discussBox clear' onclick='gotoInfo(\"" + messages[i].userid + "\")'>"+
+											"<div class='itemImg'>"+ /* unReadContent(messages[i]) +  */
+												"<a href='${base}/user/f_" + messages[i].userid + ".html'>"+
+												"<img src='" + getPortrait(messages[i].portrait)  + "' width='50' height='50' /></a>"+
+											"</div>"+
+											"<div class='itemInfo'>"+
+												"<h4 class='clearfix'>"+
+													"<span>" + messages[i].createtime + "</span>"+
+													"<a href='${base}/user/f_" + messages[i].userid + ".html'>" + messages[i].username + "</a>"+
+												"</h4>"+
+												messages[i].content +
+												"<div class='review clear'>"+
+													"<span>"+
+														"<a class=\"reply\" onclick='quickReply(\"" + messages[i].userid + "\",\"" + messages[i].username + "\",event);'>回复</a>&nbsp;&nbsp;" +
+														"<a href='${base}/message/messageInfo.html?friendId=" + messages[i].userid + "'>共" + messages[i].count + "条私信</a>" +
+													"</span>"+ 
+												"</div>"+
+											"</div>"+
+										"</div>";
+							}
+							if(messages.length != size) {
+								$(".btnMore").hide();
+								isLoadComplete = true;
+							}
+							document.getElementById("msgLists").innerHTML += html;
+							start += messages.length;
+							
+							//显示暂无
+							if(jQuery("#msgLists").children(".discussBox").size() == 0) {
+								document.getElementById("msgLists").innerHTML = "<div class='promptBox'>暂无私信</div>";
+							}
+						} else {
+							//登录超时
+							if(result.msg == 20003) {
+								showLoginDialog(function (data) {
+									closeLoginDialog();
+								},null,true);
+								return;
+							}else{
+								alert(data.msg);
+							}
+						}
+					},
+					error: function(err) {
+						alert("操作失败");
+					},
+					complete: function() {
+						$('#show').hide();
+					}
+				});
+			}
+			
+			function openLoginDialog() {
+				$.unblockUI();
+				showLoginDialog(function (data) {
+					if(data.success) {
+						closeLoginDialog();
+						window.location.reload();
+					}
+				},null,true);
+			}
+			
+			//发送私信
+			function sendMessage() {
+				var _friendId = document.getElementById("friendId").value;
+				var textHtml=jQuery("#content").val();
+				if(textHtml.length==0){
+					jQuery.blockUI({ css: { 
+			            border: 'none', 
+			            padding: '15px', 
+			            backgroundColor: '#0061a6', 
+			            '-webkit-border-radius': '10px', 
+			            '-moz-border-radius': '10px', 
+			            opacity: .8, 
+			            color: '#fff' 
+			        },
+			        overlayCSS:  { 
+			            backgroundColor: 'none', 
+			            opacity:         0.6, 
+			            cursor:          'wait' 
+			        },
+			        message:"写点东西吧，内容不能为空哦"
+					}); 
+			 
+			        setTimeout(jQuery.unblockUI, 500); 
+
+					return;
+				}
+				if(_friendId.length==0){
+					jQuery.blockUI({ css: { 
+			            border: 'none', 
+			            padding: '15px', 
+			            backgroundColor: '#0061a6', 
+			            '-webkit-border-radius': '10px', 
+			            '-moz-border-radius': '10px', 
+			            opacity: .8, 
+			            color: '#fff' 
+			        },
+			        overlayCSS:  { 
+			            backgroundColor: 'none', 
+			            opacity:         0.6, 
+			            cursor:          'wait' 
+			        },
+			        message:"请选择要发送的好友。"
+					}); 
+			 
+			        setTimeout(jQuery.unblockUI, 1000); 
+
+					return;
+				}
+				if(textHtml.length>200 ){
+					jQuery.blockUI({ css: { 
+			            border: 'none', 
+			            padding: '15px', 
+			            backgroundColor: '#0061a6', 
+			            '-webkit-border-radius': '10px', 
+			            '-moz-border-radius': '10px', 
+			            opacity: .8, 
+			            color: '#fff' 
+			        },
+			        overlayCSS:  { 
+			            backgroundColor: 'none', 
+			            opacity:         0.6, 
+			            cursor:          'wait' 
+			        },
+			        message:"你输入的文本过长，请确认后再发送。"
+					}); 
+			 
+			        setTimeout(jQuery.unblockUI, 500); 
+
+					return;
+				}
+				
+				var _content = document.getElementById("content").value;
+				
+			
+				jQuery.ajax({
+					type: "POST",
+					dataType: "json",
+					url: "${base}/message/sendMessage.json",
+					data: { friendId: _friendId, content: _content},
+					success: function(result) {
+						if(result.success) {
+							start = 0;
+							document.getElementById("msgLists").innerHTML = "";
+							loadMessage();
+							tb_remove();
+							jQuery.blockUI({ css: { 
+					            border: 'none', 
+					            padding: '15px', 
+					            backgroundColor: '#0061a6', 
+					            '-webkit-border-radius': '10px', 
+					            '-moz-border-radius': '10px', 
+					            opacity: .8, 
+					            color: '#fff' 
+					        },
+					        overlayCSS:  { 
+					            backgroundColor: 'none', 
+					            opacity:         0.6, 
+					            cursor:          'wait' 
+					        },
+					        message:"发送成功。"
+							}); 
+					        setTimeout(jQuery.unblockUI, 1000); 					        
+						} else {
+							//登录超时
+							if(result.msg == 20003) {
+								tb_remove();
+								jQuery.blockUI({ css: {  backgroundColor: '#0061a6',   padding: '15px',  opacity: .8,   color: '#fff'  },
+							        overlayCSS:  {  backgroundColor: 'none' },
+							        message:"登录超时，请重新&nbsp;&nbsp;<a style='color:#fff;font-size=12px; font-weight:bold;' onclick='openLoginDialog()'>登录&nbsp;</a>"
+									}); 
+								$('.blockOverlay').click($.unblockUI); 
+								return;
+							}
+							jQuery.blockUI({ css: {  backgroundColor: '#0061a6',   opacity: .8,   color: '#fff'  },
+						        overlayCSS:  {  backgroundColor: 'none' },
+						        message: result.msg
+								}); 
+						        setTimeout(jQuery.unblockUI, 2000); 
+						}
+						jQuery("#content").val("");					        
+				        jQuery("#usertip").val("");
+				        jQuery("#friendId").val("");
+				        jQuery("#friendName").val("");
+					},
+					error: function(err) {
+						alert("操作失败");
+					},
+					complete: function() {
+					}
+				});
+			}
+			//
+			//
+			jQuery(function(){
+			var limitNum = 200; 
+			var pattern = '还可以输入' + limitNum + '字'; 
+			jQuery('.statementText').html(pattern); 
+			jQuery('.textareaCount').live('keyup', 
+			function() { 
+			var remain = jQuery(this).val().length; 
+			if (remain > limitNum) { 
+			pattern = jQuery('字数超过限制，请适当删除部分内容'); 
+			} 
+			else { 
+			var result = limitNum - remain; 
+			pattern = '还可以输入' + result + '字'; 
+			} 
+			jQuery(this).siblings('.statementText').html(pattern); 
+			} 
+			); 
+			});
+			
+		</script>
+	</head>
+	
+	<body onload="init();">
+		<a href="#TB_inline?height=230&width=425&inlineId=message"  id="openLoginDialog"  style="display:none;" title="登录" class="thickbox">&nbsp;</a>
+		<div id="loginNav" style="display:none;">
+			#parse("common/login.html")
+		</div>
+		<div id="message" style="display:none;">
+		        <div class="messageBoxPop">
+		        	<input type="hidden" id="friendId" />
+		        	<table>
+		        		<tr>
+		        			<td width="50">发给：</td>
+		        			<td id="usertip">
+								<input id="friendName" class="inputStyle br5" type="text" onkeyup="showUserTip();"  placeholder="请输入好友姓名"/> <!-- onkeydown="if(event.keyCode==13){checkform();}" -->
+								
+							</td>
+		        		</tr>
+		        		<tr>
+		        			<td valign="top">内容：</td>
+		        			<td>
+		        				<textarea id="content" cols="" rows="3" class="textareaCount" maxlength="200" style="margin-bottom:5px;"></textarea>
+		        				<div class="statementText">还可输入200个字</div>
+		        			</td>
+		        		</tr>
+		        		<tr>
+		        			<td></td>
+		        			<td><input type="submit" class="br5 btn_login" value="发 送" onclick="sendMessage();" /></td>
+		        		</tr>
+		        	</table>
+		        </div>
+		</div>
+		#parse("common/head.html")
+		<div id="container" class="clear">
+ 			<div class="content">
+				<dl class="opinion">
+		           	<dt>
+		               	<h2 style="margin-top:0;">我的私信</h2>
+		               	<a href="#TB_inline?width=420&height=250&inlineId=message" id="clickALink" title="写私信" class="thickbox more link_b">写私信</a>
+		            </dt>
+		            <dd>
+		            	<div id="msgLists"></div>
+		        		<div id="show" style="display:none;"><img src="${base}/images/loading.gif" />加载中......</div>  
+	        			<div class="btnMore" style="display:none;"><a onclick="searchMore();">查看更多&raquo;</a></div>
+		       	  	</dd>
+		        </dl>
+			</div>
+			<div class="sidebar">
+					#if($!{adv})
+	    		     <a href="$!{adv.link}"    target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+	    		    #else
+	    		     <a><img src="${base}/images/rightAds.jpg" alt="广告" width="300" /></a>
+    		        #end
+			</div>
+		</div>
+		#parse("common/footer.html")
+	</body>
+</html>

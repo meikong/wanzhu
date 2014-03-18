@@ -1,0 +1,308 @@
+		#parse("common/include_web.html")
+		<link rel="stylesheet" href="${base}/css/thickbox.css" type="text/css" />
+		<script type="text/javascript" src="${base}/js/thickbox-compressed.js"></script>
+		<script type="text/javascript">
+			var size = 15;        //页大小
+			var start = 0;  	  //开始记录数
+			var isLoadComplete = false; //全部数据是否加载完毕
+			
+			//滚动加载
+			$(function(){
+				//总消息数量
+			//	var msgNum = Number(jQuery(".special .topA strong").html());
+				//通知的数量
+			//	var tzNum = Number(jQuery("#unc").html());
+				//重新给总消息赋值
+			//	jQuery(".special .topA strong").html(msgNum-tzNum);
+				//
+				var scrollCount = 0;
+				$(window).bind("scroll", function() {
+					if(!isLoadComplete) {
+						$('#noticeLists').each(function(){
+							if(scrollCount >= 2) {
+								$('#show').hide();  
+								$(".btnMore").show();
+								return ;
+							}				
+							var fold = $(window).height() + $(window).scrollTop();
+							if(fold >= $('#show').offset().top + 100) { 
+								$('#show').show();
+								loadNotification();
+							    scrollCount++;
+							}
+						});
+					}	
+				});	
+				jQuery(".noticeBox").live('mouseover',function(){
+					if(jQuery(this).children('span').children("div").size()==0)
+					jQuery(this).children('span').children(".hideClose").show();
+				}).live('mouseout',function(){
+					if(jQuery(this).children('span').children("div").size()==0)
+					jQuery(this).children('span').children(".hideClose").hide();
+				});
+			});
+			
+			
+			
+			function getContent(content, read) {
+				if(read == 0) {
+					return "<b>" + content + "</b>";
+				} else {
+					return content;
+				}
+			}
+			
+			function getMoreOperate(notification) {
+				var html = ""
+				if(notification.type == "2" && notification.inviter != "" && notification.replied == "0") {
+            		html = "<div name='operate_" + notification.inviter + "'>" 
+            			 + 		"<a onclick='agreeAddFriend(\"" + notification.inviter + "\", \"" + notification.notificationid + "\")' class='hideClose'>同意</a>&nbsp;&nbsp;"
+            			 + 		"<a onclick='disagreeAddFriend(\"" + notification.inviter + "\", \"" + notification.notificationid + "\")' class='hideClose'>拒绝</a>&nbsp;&nbsp;"
+            			 + "</div>";
+            		return html;
+				} 	
+				if(notification.type == "2" && notification.replied != "0") {
+					if(notification.replied == "1") {
+						html = "已同意&nbsp;&nbsp;";
+					} else {
+						html = "已拒绝&nbsp;&nbsp;";
+					}
+					return html;
+				}
+				return html;
+			}
+			
+			//同意加好友
+			function agreeAddFriend(friendId, notificationId) {
+				jQuery.ajax({
+					type: "post",
+					dataType: "json",
+					url: '${base}/relationship/agree_' + friendId +　"_" + notificationId + ".json",
+					success: function(json) {
+						if(json.success)
+							//jQuery("div[name='operate_" + friendId +"']").html("已同意&nbsp;&nbsp;");
+							jQuery("div[name='operate_" + friendId +"']").parents(".noticeBox").remove();
+						else {
+							if(json.msg == 20003) {
+								showLoginDialog(function (data) {
+									closeLoginDialog();
+								},null,true);
+								return;
+							}else{
+								alert(data.msg);
+							}					
+						}
+							
+							
+					},
+					error: function(err) {
+						alert("操作失败");
+					},
+					complete: function() {
+					}
+				});
+			}
+			
+			//拒绝加好友
+			function disagreeAddFriend(friendId, notificationId) {
+				jQuery.ajax({
+					type: "post",
+					dataType: "json",
+					url: '${base}/relationship/disagree_' + friendId +　"_" + notificationId + ".json",
+					success: function(json) {
+						if(json.success)
+							//jQuery("div[name='operate_" + friendId +"']").html("已拒绝&nbsp;&nbsp;");		
+							jQuery("div[name='operate_" + friendId +"']").parents(".noticeBox").remove();
+						else {
+							if(json.msg == 20003) {
+								showLoginDialog(function (data) {
+									closeLoginDialog();
+								},null,true);
+								return;
+							}else{
+								alert(data.msg);
+							}		
+						}
+					},
+					error: function(err) {
+						alert("操作失败");
+					},
+					complete: function() {
+					}
+				});
+			}
+            function init() {
+            	
+    				
+				
+				loadNotification();
+				
+				//xu start
+				//私信的数量
+				var umc = Number(jQuery("#umc").html());
+				//重新给总消息赋值
+				if(umc>0){
+					jQuery(".special .topA strong").html("<b>"+data.content.uc+"</b>");
+				}
+				else{
+					jQuery(".special .topA strong").html("");
+				}
+				jQuery("#unc").html("");
+				//xu end
+			}
+			
+			function loadNotification() {
+				
+				jQuery.ajax({
+					type: "GET",
+					dataType: "json",
+					url: '${base}/notification/queryNotifications.json?date=' + new Date(),
+					data: "start=" + start + "&size=" + size,
+					success: function(result) {
+						if(result.success) {
+							var notifications = result.content;
+							var html = "";
+							for(var i = 0; i < notifications.length; i++) {
+								html += "<div id='n_" + notifications[i].notificationid + "' class='noticeBox clear'>" +
+									"<span>" + getMoreOperate(notifications[i]) +
+        								"<a style='display:none;' onclick='deleteNotification(\"" + notifications[i].notificationid + "\")' class='hideClose' title='删除'>&nbsp;X&nbsp;</a>" +
+        							"</span>"+			
+										getContent(notifications[i].content, notifications[i].read) + 
+			                				"<em>" + notifications[i].createtime + "</em>" +
+				                 		"</div>";
+							}
+							if(notifications.length != size) {
+								$(".btnMore").hide();
+								isLoadComplete = true;
+							}
+							document.getElementById("noticeLists").innerHTML += html;
+							start += notifications.length;
+							
+							//显示暂无
+							if(jQuery("#noticeLists").children(".noticeBox").size() == 0) {
+								document.getElementById("noticeLists").innerHTML = "<div class='promptBox'>暂无通知</div>";
+							}
+						} else {
+							if(result.msg == 20003) {
+								showLoginDialog(function (data) {
+									closeLoginDialog();
+								},null,true);
+								return;
+							}else{
+								alert(data.msg);
+							}		
+						}
+					},
+					error: function(err) {
+						alert("操作失败");
+					},
+					complete: function() {
+						$('#show').hide();
+					}
+				});
+				
+			}
+			
+			//查看更多
+			function searchMore() {
+				loadNotification();
+			}
+			
+			//删除
+			function deleteNotification(notificationId) {
+				if(!confirm("是否确定删除该通知？")) {
+					return;
+				}
+				jQuery.ajax({
+					type: "GET",
+					dataType: "json",
+					url: "${base}/notification/deleteNotification.json",
+					data: "notificationid=" + notificationId,
+					success: function(result) {
+						if(result.success) {
+							document.getElementById("n_" + notificationId).style.display = "none";
+						} else {
+							if(result.msg == 20003) {
+								showLoginDialog(function (data) {
+									closeLoginDialog();
+								},null,true);
+								return;
+							}else{
+								alert(data.msg);
+							}		
+						}
+					},
+					error: function(err) {
+						alert("操作失败");
+					},
+					complete: function() {
+						
+					}
+				});
+			}
+			
+			//删除全部
+			function deleteAll() {
+				if(!confirm("是否确定删除全部通知？")) {
+					return;
+				}
+				jQuery.ajax({
+					type: "GET",
+					dataType: "json",
+					url: "${base}/notification/deleteAllNotifications.json",
+					success: function(result) {
+						if(result.success) {
+							document.getElementById("noticeLists").innerHTML = "";
+						} else {
+							if(result.msg == 20003) {
+								showLoginDialog(function (data) {
+									closeLoginDialog();
+								},null,true);
+								return;
+							}else{
+								alert(data.msg);
+							}		
+						}
+					},
+					error: function(err) {
+						alert("操作失败");
+					},
+					complete: function() {
+					}
+				});
+			}
+		</script>
+	</head>
+	
+	<body onload="init();">
+		#parse("common/head.html")
+		
+		<div id="loginNav" style="display:none;">
+			#parse("common/login.html")
+		</div>
+		
+		<div id="container" class="clear">
+ 			<div class="content">
+		    	<dl>
+		           	<dt>
+		               	<h2 style="margin-top:0;">通知</h2>
+		               	<a onclick="deleteAll();" class="more link_b">删除全部</a>
+		            </dt>
+		            <dd>
+		            	<div id="noticeLists"></div>
+		        		<div id="show" style="display:none;"><img src="${base}/images/loading.gif" />加载中......</div>  
+		        		<div class="btnMore" style="display:none;"><a onclick="searchMore();">查看更多&raquo;</a></div>
+		       	  	</dd>
+		        </dl>
+		    </div>
+		    <div class="sidebar">
+		    	#if($!{adv})
+	    		<a href="$!{adv.link}"   target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+	    		 #else
+	    		 <a><img src="${base}/images/rightAds.jpg" alt="广告" width="300" /></a>
+    		     #end
+		  	</div>
+		</div>
+		#parse("common/footer.html")
+	</body>
+</html>

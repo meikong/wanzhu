@@ -1,0 +1,35 @@
+#parse("common/include_web.html")
+<script type="text/javascript">
+ 		var suc = true;
+ 		#if($!{errorCode})
+ 			suc = false;
+ 		#end
+        var leftSeconds = 2;
+        var timeIntervalId;
+        if(suc){
+        	$(function() {
+                timeIntervalId=setInterval("CountDown()", 1000);
+            });
+        }
+        function CountDown() {
+            if(leftSeconds<=0){               
+                clearInterval(timeIntervalId);
+                document.location.href="$!{url}";
+            }else{
+            	 leftSeconds--;
+                 $("#time_cout").html(leftSeconds);
+            }
+        }
+    </script>
+
+</head>
+<body>
+<div class="promptBox02">
+#if($!{errorCode})
+<img src="${base}/images/new/icon_error02.gif" />#errorMsg($!{errorCode})
+#else
+<img src="${base}/images/new/icon_success02.gif" width="32" height="32" alt="" />帐号激活成功！<em id="time_cout" >2</em>秒后自动跳转到主页，或者直接点击<a href="$!{url}">这里</a>转到主页。
+#end
+</div>
+</body>
+</html>

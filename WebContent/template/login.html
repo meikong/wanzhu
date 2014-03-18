@@ -1,0 +1,50 @@
+#parse("common/include_web.html")
+<style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+</style>
+<script type="text/javascript">
+	$(function(){
+		
+		jQuery.ajax({
+			type : 'POST',
+			dataType : "json",
+			url : ctx+'/user/adv?type=9',
+			data : {},
+			success : function(data) {
+					var adv = data.content;
+					if(data.success && adv !=null)
+					{
+						$("#advImg").html("<a href=\""+adv.link+"\"><img src=\""+adv.url+"\" alt=\""+adv.memo+"\" width=\"300\" /></a>");
+					}
+			},
+			error : function(err) {
+			},
+			complete : function() {
+			}
+		});
+	});
+</script>
+</head>
+
+<body>
+	<div id="header">
+    	<div class="wrapper">
+    		<a href="${base}/index.html" class="logo">3W</a>
+        </div>
+    </div>
+    
+
+<div id="container" class="clear"> 
+  	<div class="login_wrapper clear">
+    	<div class="login_left ">
+           #parse("common/login.html")
+        </div>
+        <div class="login_right">
+            <a href="http://www.bokecc.com/" target="_blank"><img src="${base}/images/new/uc_login.jpg" alt="¹ã¸æ" width="300" height="225" /></a>
+        </div>    
+    </div>
+</div>
+
+#parse("common/footer.html")
+</body>
+</html>

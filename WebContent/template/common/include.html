@@ -1,0 +1,63 @@
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js"type="text/javascript"></script>
+<script src="${base}/js/jquery.validate.js" type="text/javascript" ></script>
+<script src="${base}/js/jquery.form.js" type="text/javascript" ></script>
+<script src="${base}/js/form_validate.js" type="text/javascript" ></script>
+<link href="${base}/css/css.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="${base}/css/core.css" type="text/css" />	
+<link rel="stylesheet" href="${base}/css/thickbox.css" type="text/css" />	
+<script src="${base}/js/jMonthCalendar.js" type="text/javascript"></script>
+<script type="text/javascript" src="${base}/js/thickbox-compressed.js"></script>
+<script type="text/javascript" src="${base}/js/util.js"></script>
+<script src="${base}/js/scrolltopcontrol.js" type="text/javascript" ></script>
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fc8b82d49506b74af14b13d5137fae457' type='text/javascript'%3E%3C/script%3E"));
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-39380338-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<script type="text/javascript">
+
+$(function(){
+	//底部定位
+	 var contentHeight=$("#pageBody").height()+100;		  
+	 if($(window).height()>contentHeight){
+		 $("#pageBody").css("minHeight",$(window).height()-130);
+		 }
+
+	 //顶部下拉
+	$(".topBar li").live('mouseover',function(){
+		$(".topBar li a.topA").removeClass("hover");	
+		$(".topBar li ul").hide();							   
+		$(this).children("a.topA").addClass("hover");							   
+       $(this).children("ul").css('width',$(this).width()-2).show();
+	}).live('mouseout',function(){
+		$(this).children("a.topA").removeClass("hover");	
+		$(this).children("ul").hide();
+	});
+	$(".topBar li ul").live('mouseout',function(){
+		$(this).siblings("a.topA").removeClass("hover");	
+       $(this).hide();
+	});	
+});
+function showMsgPanel(msg){
+	if(!msg){
+		msg="操作成功！";
+	}
+	jQuery.blockUI({ css: {  backgroundColor: '#0061a6', padding:'10px',   opacity: .8,   color: '#fff'  },
+        overlayCSS:  {  backgroundColor: 'none' },
+        message:msg
+		}); 
+        setTimeout(jQuery.unblockUI, 1000); 
+		return;
+}
+</script>

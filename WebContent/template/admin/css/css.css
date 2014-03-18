@@ -1,0 +1,77 @@
+@charset "utf-8";
+/* Reset
+-------------------------------------------------------------- */
+*{ word-wrap:break-word;}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,form,fieldset,input,textarea{ padding:0; margin:0;}
+h1,h2,h3,h4,h5,h6{ font-weight:normal; font-size:100%;}
+input,textarea,select,button,tr,td{ font-family:inherit; font-size:inherit; font-weight:inherit;}
+input,textarea,select,button{ font-size:12px;}
+label,inputt,textarea,select{ vertical-align:middle;}
+input,textarea,select{ border:1px solid #ccc; color:#666;}
+input{ padding:0 3px; height:20px; line-height:20px;}
+select{ padding:1px; height:22px;}
+button{ overflow:visible; cursor:pointer;}
+table{ border-collapse:collapse; border-spacing:0;}
+fieldset,img{ border:none;margin:0px auto;}
+li{ list-style:none;}
+em{ font-style:normal;}
+.clear{ clear:both; display:block; overflow:hidden; visibility:hidden; width:0; height:0;}
+.clearfix:after{ clear:both; content:'.'; display:block; font-size:0; line-height:0; visibility:hidden; width:0; height:0;}
+.clearfix{ display:inline-block;}
+* html .clearfix{ height:1%;}
+.clearfix{ display:block;}
+
+
+
+
+
+/* Default
+-------------------------------------------------------------- */
+body{ width:100%; margin:auto; font:12px/170% Verdana, Arial, Helvetica, sans-serif; background:#efefef; color:#333; text-align:left;}
+tr,td{ font:12px/170% Verdana, Arial, Helvetica, sans-serif;}
+a{ color:#057cb2; outline:none; text-decoration:none; cursor:pointer;}
+a:hover{ color:#036;}
+input,a:active,a:focus{ -moz-outline:none; outline:none; ie-dummy:expression(this.hideFocus=true);}
+
+
+.messageBox li{ line-height:35px;}
+.messageBox li label{ width:120px; text-align:right; display:inline-block;}
+.infoBox li{ line-height:35px; width:280px; display:inline-block; margin:0 10px;}
+.grid_head{ width:100%; margin:3px auto;}
+.grid{ border:0 solid #ccc; border-width:1px 1px 0 0;}
+	.grid th,.grid td{ padding:5px 5px 3px; border:0 solid #ccc; border-width:00 1px 1px; text-align:center;}
+	.grid th{ padding:6px 4px 4px; background:url(../images/grid_th.jpg) repeat-x 0 100%;}
+	.grid tr.space{ background:#ccc;}
+	.grid td.special{ padding-left:10px; text-align:left;}	
+	.grid td.right{ padding-right:10px; text-align:right;}	
+	.grid th.green{ color:#527d43;}
+.info h5 { background: url("../images/icon_arrow02.gif") no-repeat scroll 2px 16px transparent; font-size: 14px;  font-weight: bold; padding: 8px 0 8px 18px;}
+.picBox{ width:100px; float:left; margin:10px; text-align:center;}
+.picBox img{ padding:5px; border:solid 1px #ccc;}
+.picBox p{ line-height:15px; padding:0px; margin:3px 0;}
+.signBoxChoose{ width:400px; min-height:100px; float:left; border:1px solid #FFF; background-color:#FFF; margin-right:5px;}
+.signBoxChoose a{ color: #fff; padding:2px 4px; margin:2px; white-space:nowarp;border:dashed 1px #ccc; display: inline-block;}
+.signBoxList{ float:left; width:470px; height:auto; border:1px solid #fff; background-color:#85c034;}
+.signBoxList li{ padding:2px 3px; line-height:18px; float:left; margin:5px 5px; background-color:#efefef; border:solid 1px #FFF;}
+.loginBody{ width:100%; height:100%; background:url(../images/login_bg.jpg) repeat-x; }
+.loginPanel{ width:525px; height:340px; margin:200px auto; background-image:url(../images/loginBox.jpg); background-repeat:no-repeat;}
+.loginBox li,.editbox li{ line-height:45px;}
+.loginBox li.spec,.editbox li.spec{ line-height:15px; margin-top: -10px;}
+.loginBox li.spec em,.editbox li.spec em{ line-height:15px; color:#666; font-size:12px;  font-style: italic;}
+.loginBox li label{ width:160px; text-align:right; display:inline-block;}
+.editbox li label{ width:70px; text-align:right; display:inline-block;}
+.editbox li em{ color:#f00;}
+.editbox li.ads label{ float:left; }
+.editbox li.ads ul{ float:right; padding-top:10px; width:518px;}
+.editbox li.ads li{ float:left; padding:0 10px 0 0; line-height:26px; white-space:nowrap;}
+
+.shareMan{ min-height:25px; width:430px; line-height:25px; padding:0px 5px; border:solid 1px #efefef; background-color: #fff; display:inline-block; margin: 5px 0px 0px 5px;}
+li label.error,li label.success{margin:-5px 0 0 5px; padding:0 0 0 0; text-indent:21px; line-height:21px; line-height:21px; background:#fcf5f0 url(../images/icon_error.gif) no-repeat 2px 2px; border:1px solid #ffac7a; width:170px; color:#999; text-align:left; font-weight:normal; display: inline-block;}
+li label.success{ background-image:url(../images/icon_success.gif);}
+
+.diffbox li label.error,.diffbox li label.success{margin:0 0 0 5px; padding:0 0 0 21px; height:21px; line-height:21px; background:#fcf5f0 url(../images/icon_error.gif) no-repeat 2px 2px; border:1px solid #ffac7a; width:120px; color:#999; text-align:left; font-weight:normal; display: inline-block;}
+.diffbox li label.success{ background-image:url(../images/icon_success.gif);}
+
+.searchListBox{ /*display:none;*/ position:absolute; top:30px; left:14px; z-index:9999; background:#f8f8f8; border:0 solid #ddd; border-width:0 1px 1px; width:156px; max-height:150px; overflow:auto;}
+		.searchListBox ul{ width:156px;}
+		.searchListBox li:hover{ background-color: #fff; font-weight: bold; cursor: pointer;}

@@ -1,0 +1,167 @@
+#parse("common/include_web.html")
+<meta content="$!{event.subtopic}" name="description">
+		<meta content="$!{event.topic}" name="description">
+<script type="text/javascript">
+$(function(){
+	//滚动加载 vee added for topic list 
+	var scrollCount = 0;
+	$(window).bind("scroll", function() {
+			var fold = $("#flag").offset().top;
+			if(scrollCount >= 1) {
+				return ;
+			}
+			//console.log(fold,document.documentElement.scrollTop || document.body.scrollTop );
+			//console.log($(".topic").length);
+			if((fold <= $(window).scrollTop() + 600) && $("#eventTopic .topic").length%10==0) { 
+				loadTopic("$!{event.eventid}");
+				scrollCount++;
+			}
+	});	
+
+	$("#btnMore").click(function() {
+		loadTopic("$!{event.eventid}");
+	});
+});
+</script>
+</head>
+
+<body onload="init();">	
+	#parse("common/head.html")
+	<div id="container" class="clear">
+    	<div class="content">
+    		#set($hasVideo = false)
+			#set($hasPPT = false)
+			#set($hasText = false)
+			#foreach($sumary in $!{event.summaries})
+				#if($sumary.type == 0)
+					#set($hasVideo=true)
+				#end
+				#if($sumary.type == 1)
+					#set($hasPPT=true)
+				#end
+				#if($sumary.type == 2 && $sumary.words != "")
+					#set($hasText=true)
+				#end
+			#end
+<!-- ----------------------------------------------讨论区开始----------------------------------------------------------->
+			
+			<div class="topic_page">
+				<div class="breadcrumb">
+    				<a href="${base}/index.html">首页</a> >
+    				<a href="${base}/event/d_$!{event.eventid}.html">$!{event.topic}</a> >
+    				<span>话题</span>
+    			</div>
+                <h2>话题</h2> 
+                <div id="eventTopic"></div>
+                <a id="btnMore" class="more link_b fr dn">查看更多>></a>
+                <span id="flag"></span>
+		         <div id="loading" class="loading dn"><img src="${base}/images/loading.gif" />加载中......</div>  
+		    	 #if(!$session.getAttribute("USER_CONTEXT"))
+					<div id="loginarea" class="promptBox">
+						<img src="${base}/images/new/icon_prompt.gif" alt="" /> <span> <a id="loginbtn"
+							onclick="showLoginDialog(success, null, true);" title="登录"
+							class="thickbox link_b">登录</a>
+						</span> 后才能参与话题
+					</div>
+					
+				#else
+                <div class="topic no_btm">
+	               	<a uid="$!session.getAttribute('USER_CONTEXT').getUserid()" id=""><img src="$!session.getAttribute('USER_CONTEXT').portrait"  width="44" height="44" alt="" /></a>
+                    <dl>
+                  		<dt class="clear">
+                       	<a  uid="$!session.getAttribute('USER_CONTEXT').getUserid()" id="myselfDetail">$!session.getAttribute("USER_CONTEXT").name <span>$!session.getAttribute("USER_CONTEXT").companyName $!session.getAttribute("USER_CONTEXT").position</span></a>
+                       </dt>
+                       <dd>
+                       		<div class="comment_wrapper br5">
+                           		<textarea id="txtTopic" placeholder="说说你的观点吧" maxlength="200"></textarea>
+                               	<div><!-- 发表新话题 --></div>
+                               	<a class="br5_r" onclick="sendTopic();">发表新话题</a>
+                          	</div>
+                       </dd>
+                  	</dl>
+                </div>
+            	#end
+            </div>
+<!-- ----------------------------------------------讨论区结束--------------------------------------------------->
+        
+        </div>
+        <div class="sidebar">
+			<div class="side_box br5">
+            	<h4>所属活动</h4>
+            	<a href="${base}/event/d_$!{event.eventid}.html">$!{event.topic}</a>
+            </div>
+             #if($hasText)
+	            <dl class="opinion">
+	            	<dt>
+	                	<h2>相关文章</h2>
+	                	<!-- <a href="#" class="more link_b">查看更多>></a> -->
+	                </dt>
+	                <dd>
+	                	<ul class="relatedArticle">
+	                		#foreach($sumary in $!{event.summaries})
+		                		#if($sumary.type == 2)
+		                			<li #if($sumary.summaryid == $summaryId) class="dn" #end><a href='${base}/event/articleList_${event.eventid}_${sumary.summaryid}.html'>$!{sumary.summaryTitle}</a></li>
+		                		#end
+	                		#end
+	                	</ul>
+	                </dd>
+	            </dl>
+	            #end
+	            
+	            #parse("topic/topic_hot.html")
+	            
+	            #if($hasVideo)
+	            <dl class="opinion">
+	            	<dt>
+	                	<h2>活动视频</h2>
+	                	<!-- <a href="#" class="more link_b">查看更多>></a> -->
+	                </dt>
+	                <dd>
+	                	 #foreach($sumary in $!{event.summaries})
+							#if($sumary.type == 0)
+								<div class="acti_side">
+			                    	<a href="${base}/event/videoList_${event.eventid}_${sumary.summaryid}.html" class="acti_im br5">
+			                        	<img width="117" height="75" alt=""
+			                        					#if(${sumary.snapshot})
+	   														src="${sumary.snapshot}" 
+	   													#else
+	   														src="${base}/images/noPic_02.jpg" 
+	   													#end />
+			                            <i></i>
+			                        </a>
+			                        <div class="acti_cont">
+			                        	<a href="${base}/event/videoList_${event.eventid}_${sumary.summaryid}.html"><h3>$!{sumary.words}</h3></a>
+			                            
+			                        </div>
+			                    </div>
+			               	#end
+						#end
+	                </dd>
+	            </dl>
+	            #end
+        </div>
+    </div>
+    
+	
+	#parse("common/friends.html")
+  #parse("common/message.html")
+  #parse("common/aboutUser.html")
+  
+	#parse("common/footer.html")
+
+<script src="${base}/js/json2.js" type="text/javascript"></script>
+<script src="${base}/js/discuz.js" type="text/javascript"></script>
+<script src="${base}/js/jquery.blockUI.js"></script>
+<script src="${base}/js/PlainText2RichText.js"></script>
+<script type="text/javascript">
+function init() {
+		loadTopic('${eventId}');
+	
+}
+
+var success = function() {
+	window.location.reload();
+}
+</script>
+</body>
+</html>

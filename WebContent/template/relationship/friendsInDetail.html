@@ -1,0 +1,107 @@
+#parse("common/include_web.html")
+<link href="${base}/css/page.css" rel="stylesheet" type="text/css" />
+<script src="${base}/js/jquery.pager.js"></script>
+<script src="${base}/js/relationship/relationship.js"></script>
+<script src="${base}/js/jquery.blockUI.js"></script>
+<style type="text/css" media="screen">
+#jMonthCalendar .EventBg { background-color: #ffe671;}
+</style>
+<script type="text/javascript">
+	$(function(){
+		#if(${page.getTotalPageCount()} > 1)
+			//分页控件
+			$('#Pagination').pager({
+		      currPage: ${page.getCurrentPageNo()},
+		      pageNOName: "pageNo",
+		      form: "searchForm",
+		      pageCount: ${page.getTotalPageCount()},
+		      pageSize: ${page.getPageSize()}
+		    });
+		#end
+		//初始化收件人事件
+		$(".thickbox").click(function(){
+			var params = $(this).attr("href").split("&");
+			$("#toUserId").val(params[3].split("=")[1]);
+			$("#toName").val(params[4].split("=")[1]).attr("disabled",true);
+			$("#msgContent").val("");
+		});
+		
+		$('#searchForm .feedBox').hover(function(){
+			$('.hideClose',this).show();
+		},function(){
+			$('.hideClose',this).hide();
+		});
+	});
+</script>
+</head>
+<body>
+<div id="message" style="display:none;">
+        <div class="messageBoxPop">
+        	<table>
+        		<tr>
+        			<td width="50">发给：</td>
+        			<td><input id="toName" type="text"  value="" class="inputStyle br5" /><input id="toUserId" type="hidden"  value=""/></td>
+        		</tr>
+        		<tr>
+        			<td valign="top">内容：</td>
+        			<td>
+        				<textarea id="msgContent" cols="" rows="3" class="textareaCount" maxlength="200" style="margin-bottom:5px;"></textarea>
+        				<div class="statementText">还可输入200个字</div>
+        			</td>
+        		</tr>
+        		<tr>
+        			<td></td>
+        			<td><input type="submit" value="发 送" class="br5 btn_login" onclick="sendMessage();" /></td>
+        		</tr>
+        	</table>
+        </div>
+</div>
+#parse("common/head.html")
+<div id="container" class="clear">
+    <div class="content">
+		<form id="searchForm" method="post">
+	    	<dl>
+	    		<dt class="clear">
+	    			<h2 class="mt0 fl"> 我的好友<em>（$!{friendsCountOfMine}个）</em></h2>
+	    			<span class="fr">
+	    				<input name="condition" type="text" class="inputStyle br5" onkeydown="if(event.keyCode==13){$('#searchForm').submit();}" placeholder="请输入关键字" value="$!{condition}" /> 
+	    				<a onclick="$('#searchForm').submit();" class="btnSerach"></a> 
+	    			</span>
+	    		</dt>
+	    		<dd>
+	        		#foreach($vo in $!{page.result} )
+	        		<div class="feedBox clear">
+	        				#set($portrait=$!{vo.portrait})
+	        				#if(!$!{vo.portrait})
+	        					 #set($portrait="${base}/images/icon_man.png")
+	        				#end
+		                	<a class="portrait" href="${base}/user/f_$!{vo.userId}.html"  target="_blank"><img src="$!{portrait}" width="44" height="44" class="br3" /></a>
+		                	<div class="itemInfo">
+		                    	<div class="clear">
+				                    	<a href="javascript:del('$!{vo.userId}')" class="hideClose fr link_b dn">删除好友</a>
+				                    	<a href="${base}/user/f_$!{vo.userId}.html" target="_blank"><strong>$!{vo.username}</strong></a> 
+				                    	<a href="#TB_inline?height=250&width=420&inlineId=message&userId=$!{vo.userId}&name=$!{vo.username}" title="写私信" class="thickbox link_b">私信</a>
+		                    	</div>
+		                    	#set($cjob='')
+		                    	#if($!{vo.workPosition} && $!{vo.company}) #set($cjob='  ') #end
+		                       	<div class="grey12">$!{vo.company}$!{cjob}$!{vo.workPosition}</div>
+		                        <div> 他的好友<em>（$!{vo.friendsCount}个）</em> </div>      
+		               	  </div>
+	                </div>
+	                #end
+	                <div id="Pagination"></div>
+	        	</dd>
+        	</dl>
+        </form>
+    </div>
+    <div class="sidebar">
+   		#if($!{adv})
+    		<a href="$!{adv.link}"   target="_blank"><img src="$!{adv.url}" alt="$!{adv.memo}" width="300" /></a>
+    		 #else
+    		 <a href="http://www.bokecc.com/" target="_blank"><img src="${base}/images/new/uc_login.jpg" alt="广告" width="300" height="225" /></a>
+   		#end
+  </div>
+</div>
+#parse("common/footer.html")
+</body>
+</html>

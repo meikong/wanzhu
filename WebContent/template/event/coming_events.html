@@ -1,0 +1,158 @@
+#parse("common/include_web.html")
+<script type="text/javascript" src="${base}/js/event/loading_comings.js"></script>
+<script type="text/javascript" src="${base}/js/event/loading_labels.js"></script>
+<script type="text/javascript">
+$(function() {
+	//滚动加载
+	var scrollCount = 0;
+	pn=-1; ps = -1;
+	var _pageNo = -1;
+	hasNextPage = ${result.isHasNextPage()};
+	$(window).bind("scroll", function() {
+		if(hasNextPage) {
+			var fold = $("#flag").offset().top;
+			if(scrollCount >= 2) {
+				return ;
+			}	
+			if(fold <= $(window).scrollTop() + 600) { 
+				var p = pn < 0 ? $!{result.pageNo} : pn;
+				if(_pageNo == p) return;
+				_pageNo = p;
+				loadComings((pn < 0 ? $!{result.pageNo} : pn), 
+						(ps < 0 ? $!{result.pageSize} : ps), 
+						"$!{cityCode}", "$!{labelId}", $("#scrollContent"), $("#loading"), $("#btnMore"));
+				scrollCount++;
+			}
+		}
+	});	
+	
+	//加载城市
+	jQuery.ajax({
+		type : "POST",
+		url : "${base}/event/citis.json",
+		//data : "pageSize=5&view=json&pageNo=" + (pageNo + 1),
+		success : function(rs) {
+			for(var i=0; i<rs.length; i++) {
+				var place = rs[i];
+				if(place.code=="${cityCode}") {
+					$("#placeContent").append("<li class=\"current\"><a href=\"${base}/event/e_1_"+place.code+"_0.html\">"+place.value+"</a></li>")
+				} else {
+					$("#placeContent").append("<li><a href=\"${base}/event/e_1_"+place.code+"_0.html\">"+place.value+"</a></li>")
+				}
+			}
+		}
+	});
+	
+	$("#btnMore a").click(function() {
+		loadComings($!{result.pageNo}, $!{result.pageSize}, "$!{cityCode}", "$!{labelId}", $("#scrollContent"), $("#loading"), $("#btnMore"));
+	});
+	
+	//加载标签
+	loadingLabels(1, "$!{cityCode}", $result.totalCount, "$!{labelId}");
+});
+
+</script>
+</head>
+
+<body>
+#parse("common/head.html")
+<div id="container" class="clear">
+    <div class="content">
+    	<dl>
+    		<dt>
+    			<h2 class="mt0">近期将要开始的活动</h2>
+        		<a href="${base}/event/e_0_0_0.html" class="more link_b">查看往期活动>></a>
+        	</dt>
+        	<dd>
+		    	<div id="scrollContent">
+		           	#if($result.result.size() <= 0)
+		           		<div class="promptBox">暂无活动</div> 
+		           	#end
+		           	#foreach($event in $result.result)
+		           		#parse("event/tp_coming_list.html")
+		            #end
+		        </div>
+		        <span id="flag"></span>
+		         #if(${result.isHasNextPage()})
+		          	<div id="btnMore eventBtnMore" class="btnMore"><a>查看更多>></a></div>
+		         #end
+		         <div id="loading" class='loading dn'><img src="${base}/images/loading.gif" />加载中......</div>  
+		        
+		    </dd>
+		</dl>
+    </div>
+    <div class="sidebar">
+    	<div class="side_box br5">
+			<h4>地点</h4>
+			<ul class="clear nodot" id="placeContent"></ul> 
+        </div>
+        <div class="tagsListR br5">
+    		#parse("event/tp_labels.html")
+    	</div>
+    </div>
+</div>
+
+  #parse("common/friends.html")
+  #parse("common/message.html")
+  #parse("common/aboutUser.html")
+#parse("common/footer.html")
+</body>
+<script type="text/javascript">
+_txt = "";
+$(function() {
+	redrawBottun();
+});
+
+function redrawBottun() {
+	$("span[name^='audit_']").mousemove(function() {
+		var id= $(this).attr("name").split("_")[1];
+		$(this).removeClass("btnUnS2");
+		$(this).addClass("btn2");
+		var link = $(this).children("a");
+		if(link.text() != "取消报名") {
+			_txt = link.text();
+		}
+		link.text("取消报名");
+		link.bind('click', function() {
+			//$("#unsignLink").click();
+			link.attr("href", ctx+"/event/d_"+id+".html");
+		});
+	});
+	
+	$("span[name^='audit_']").mouseout(function() {
+		//var id= $(this).attr("name").split("_")[1];
+		$(this).removeClass("btn2");
+		$(this).addClass("btnUnS2");
+		var link = $(this).children("a");
+		link.text(_txt);
+		//link.unbind('click');
+		link.removeAttr("href");
+	});
+	
+	$("span[name^='signed_']").live('mousemove', function() {
+		var id= $(this).attr("name").split("_")[1];
+		$(this).removeClass("btnUn2");
+		$(this).addClass("btn2");
+		var link = $(this).children("a");
+		if(link.text() != "取消报名") {
+			_txt = link.text();
+		}
+		link.text("取消报名");
+		link.bind('click', function() {
+			//$("#unsignLink").click();
+			link.attr("href", ctx+"/event/d_"+id+".html");
+		});
+	});
+	
+	$("span[name^='signed_']").live('mouseout', function() {
+		//var id= $(this).attr("name").split("_")[1];
+		$(this).removeClass("btn2");
+		$(this).addClass("btnUn2");
+		var link = $(this).children("a");
+		link.text(_txt);
+		//link.unbind('click');
+		link.removeAttr("href");
+	});
+}
+</script>
+</html>

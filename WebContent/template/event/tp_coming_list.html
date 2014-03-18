@@ -1,0 +1,56 @@
+<div class="itemBox clear"  id="$!{event.eventId}">
+	<a href="${base}/event/d_$!{event.eventId}.html"><img 
+   		#if($!{event.hasPoster}) 
+			src="$!{event.posterUrl}" 
+  			#else
+			src="${base}/images/noPic.jpg" 
+  			#end
+   		width="200" height="250" /></a>
+	
+	<div class="acti_info">
+        <a href="${base}/event/d_$!{event.eventId}.html" title="$!{event.topic}"><h2>$!{event.topic}</h2></a>
+        <p>
+        	<span>分享嘉宾：
+        		<a href="${base}/event/d_$!{event.eventId}.html" class="name" uid=''  point=''>$!{event.shareman}</a>
+        		#foreach($!{lectrue} in $!{event.lectrues}) 
+				   <a href="${base}/user/f_$!{lectrue.userId}.html" class="name tipALink" uid='$!{lectrue.userId}'  point='$!{event.eventId}'>$!{lectrue.name}</a>
+				#end
+        	</span><br />
+           
+           	 地点：$!{event.place}<br />
+                                    时间：
+				#set($format="yyyy年MM月dd日 HH:mm")
+				#if(${dateTool.year}==$!{dateTool.getYear($!{event.startTime})})
+					#set($format="MM月dd日 HH:mm")
+				#end
+				$dateTool.format($format, $!{event.startTime}) -
+				#if($dateTool.format("yyyyMMdd", $!{event.startTime}) 
+					== $dateTool.format("yyyyMMdd", $!{event.endTime})) 
+					$dateTool.format("HH:mm", $!{event.endTime})
+				#else
+					$dateTool.format($format, $!{event.endTime})
+				#end
+			<br />
+            	费用：<em>$number.number($!{event.expenseOnline})</em>元/人
+				<!-- #if($!{event.expenseOffline})，现场报名<em>$number.number($!{event.expenseOffline})</em>元/人#end -->
+            <br />
+            	限额：<em>$!{event.quota}</em>人  &nbsp; <span class='greyfont'>（<em>$!{event.applyCount}</em>人已报名）</span>
+      	</p>
+        
+			#if($event.hasSignuped)
+				#if($event.audit==false)
+    					<a class="sign br5" name="audit_${event.eventId}">审核中</a>
+    			#else
+    					<a class="sign br5" name="signed_${event.eventId}">已报名</a>
+    			#end
+			#elseif($!{event.quota} <= $!{event.applyCount})
+					<a class="sign br5">报名人数已满</a>
+			#else
+				#if($event.state!=1)
+    				<a href="${base}/event/d_${event.eventId}.html" class="sign br5">报名参加</a>
+    			#else
+    				<a class="sign br5" href="${base}/event/d_${event.eventId}.html" >报名参加</a>
+    			#end
+			#end
+    </div>
+</div>

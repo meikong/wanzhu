@@ -1,0 +1,14 @@
+
+<div class="activity"  id="$!{event.eventid}">
+	<a href="${base}/event/videoList_$!{summary.eventid}_${summaryIds}.html">
+		<div class="acti_im">
+	    	<img $!{posterUrl} class="br5" width="146" height="94" alt="" />
+	        <i></i>
+	    </div>
+	</a>
+    <div class="acti_cont">
+    	
+    	<a href="${base}/event/videoList_$!{summary.eventid}_${summaryIds}.html" $!{hasVideoTitle}><h3>$display.truncate($!{hasVideo},26,"...")</h3></a>
+        <span title="$!{summary.eventTopic}">$display.truncate($!{summary.eventTopic},16,"...")</span>
+    </div>
+</div>

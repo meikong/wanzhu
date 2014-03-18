@@ -1,0 +1,1274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>创建活动</title>
+#parse("common/common.html")
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<script type="text/javascript" src="${base}/js/jquery.form.js" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<!-- <link rel="stylesheet" href="${base}/template/admin/js/jwysiwyg/jquery.wysiwyg.css" type="text/css" /> -->
+<!-- <script type="text/javascript" src="${base}/template/admin/js/jwysiwyg/jquery.wysiwyg.js"></script> -->
+<script type="text/javascript" src="${base}/template/admin/js/ckeditor/ckeditor.js"></script>
+
+<script type="text/javascript" src="${base}/template/admin/js/createEvent.js"></script>
+   <script src="${base}/js/jquery.validate.js" type="text/javascript" ></script>
+<style>
+	body{ 
+	margin: 0; 
+	font-size: 12px; 
+	line-height: 100%; 
+	font-family: Arial, sans-serif; 
+} 
+.background { 
+	display: block; 
+	width: 100%; 
+	height: 100%; 
+	opacity: 0.4; 
+	filter: alpha(opacity=40); 
+	background:while; 
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	z-index: 2000; 
+} 
+.progressBar { 
+	border: solid 2px #86A5AD; 
+	background: white url(${base}/template/admin/images/progressBar_m.gif) no-repeat 10px 10px; 
+} 
+.progressBar { 
+	display: block; 
+	width: 148px; 
+	height: 28px; 
+	position: fixed; 
+	top: 50%; 
+	left: 50%; 
+	margin-left: -74px; 
+	margin-top: -14px; 
+	padding: 10px 10px 10px 50px; 
+	text-align: left; 
+	line-height: 27px; 
+	font-weight: bold; 
+	position: absolute; 
+	z-index: 2001; 
+} 
+
+.background2 { 
+	display: block; 
+	width: 100%; 
+	height: 100%; 
+	opacity: 0.4; 
+	filter: alpha(opacity=40); 
+	background:while; 
+	position: absolute; 
+	top: 0; 
+	left: 0; 
+	z-index: 2000;
+	 
+} 
+.alertDiv{
+	position: absolute; 
+	margin-left: 47%; 
+	margin-top: -550px; 
+	padding: 10px 10px 10px 10px; 
+	text-align: left; 
+	line-height: 27px; 
+	font-weight: bold; 
+}
+.progressBar2 { 
+	border: solid 2px #86A5AD; 
+	background: white url(${base}/template/admin/images/progressBar_m.gif) no-repeat 10px 10px; 
+} 
+.progressBar2 { 
+	display: block; 
+	width: 148px; 
+	height: 28px; 
+	position: fixed; 
+	top: 50%; 
+	left: 50%; 
+	margin-left: -74px; 
+	margin-top: -14px; 
+	padding: 10px 10px 10px 50px; 
+	text-align: left; 
+	line-height: 27px; 
+	font-weight: bold; 
+	position: absolute; 
+	z-index: 2001; 
+} 
+</style>
+<script>
+var articles = new Array();
+function playRedio(url,h,w){
+	$("#playRedio").text("");
+	$("#playRedio").append('<embed src="'+url+'" flashvars="isAutoPlay=true&Version=/v1.0.0401&winType=interior&showAd=0" allowFullScreen="true" quality="high" width="'+w+'" height="'+h+'" align="middle" allowScriptAccess="always" type="application/x-shockwave-flash"></embed>');
+	$( "#playRedio" ).dialog( "open" );
+}
+function playRedio2(url,h,w){
+	$("#playRedio").text("");
+	$("#playRedio").append('<img src="'+url+'" style=\"width:485px;height:410px;\"/>');
+	$("#playRedio").dialog( "open" );
+}
+
+//
+$(function(){
+	if($.browser.mozilla){
+		if($.browser.version<'16.0'){
+			alert("部分功能不兼容您的浏览器版本,请更新浏览器版本或使用Chrome操作.");
+		}
+	}
+// 	else if($.browser.chrome){
+// 		if($.browser.version<='17.0.963.78 m'){
+// 			alert("部分功能不兼容您的浏览器版本,请更新浏览器版本或使用Foxfire操作.");
+// 		}
+// 	}else if($.browser.safari){
+		
+// 	}
+	$("#st_li input[type='text']").click(function(){
+		$("#st_li label.error").remove();
+	});
+	$("#ed_li input[type='text']").click(function(){
+		$("#ed_li label.error").remove();
+	});
+	
+	$('#editArticleDialog').dialog({autoOpen:false});
+});
+
+function saveLable(lable) {
+	//提交
+	jQuery.ajax({
+		  type: 'POST',
+		  url: '${base}/eventadmin/saveLable',
+		  data:"labels="+lable,
+		  success: function(data) {
+			  if(data != 1 && data != 2&& data != 3) {//成功
+				  $("#sign li").last().before("<li><span><a name="+data+">"+$("#newSign").val()+"</a></span></li>");
+				  $("#newSign").val("");
+				  $("#addSign" ).dialog( "close" );
+				  load();
+			  	  return true;
+			  } 
+			  if(data == "1") {
+				  alert("操作失败!");
+			  	  return false;
+			  }
+			  if(data == "2") {
+				  alert("该标签已存在!");
+			  	  return false;
+			  }
+			  if(data == "3") {
+				  alert("请填写有效标签!");
+			  	  return false;
+			  }
+		  },
+		  error: function(err) {
+			  alert("操作失败");
+			  setTimeout(jQuery.unblockUI, 50); 
+		  }
+	});
+}
+
+function eventSubmit()
+{	
+	jQuery.validator.addMethod("positiveinteger", function(value, element) {
+		   var aint=parseInt(value);	
+		    return aint>=0&& (aint+"")==value;   
+	}, "Please enter a valid number.");   
+
+	jQuery.validator.addMethod("funum", function(value, element) {
+		   var aint=parseInt(value);	
+		    return aint>=-1&& (aint+"")==value;   
+	}, "Please enter a valid number.");   
+
+	
+	
+	$('#createEventForm').validate({
+		rules : {
+			'topic' : {
+				required : true,
+				rangelength: [1,128]
+			},
+			'subtopic':{
+				rangelength: [1,200]
+			},
+			'province' : {
+				required : true
+			},
+			'city' : {
+				required : true
+			},
+			'place' : {
+				required : true,
+				rangelength: [1,128]
+			},
+			'wholeday' : {
+				required : true
+			},
+			'expenseonline' : {
+				required : true,
+				positiveinteger:true
+			},
+// 			'expenseoffline' : {
+// 				required : true,
+// 				positiveinteger:true
+// 			},
+			'quota' : {
+				required : true,
+				funum: true
+			},
+			'recommendation' : {
+				required : true
+			},
+			'state' : {
+				required : true
+			},
+			'visible' : {
+				required : true
+			},
+			'text1' : {
+				required : true
+			}
+		},
+		messages : {
+			'topic' : {
+				required: "必填字段",
+				rangelength: "长度应为1~128个字符。"
+			},
+			'subtopic':{
+				rangelength:"长度应为1~200个字符。"
+			},
+			'province' : {
+				required: "必填字段"
+			},
+			'city' : {
+				required: "必填字段"
+			},
+			'place' : {
+				required: "必填字段",
+				rangelength: "长度应为1~128个字符。"
+			},
+			'wholeday' : {
+				required: "必填字段"
+			},
+			'expenseonline' : {
+				required: "必填字段",
+				positiveinteger:"请输入合法的数字"
+			},
+// 			'expenseoffline' : {
+// 				required: "必填字段",
+// 				positiveinteger: "请输入合法的数字" 
+// 			},
+			'quota' : {
+				required: "必填字段",
+				funum: "请输入合法的数字" 
+			},
+			'recommendation' : {
+				required: "必填字段"
+			},
+			'state' : {
+				required: "必填字段"
+			},
+			'visible' : {
+				required: "必填字段"
+			},
+			'text1' : {
+				required: "必填字段"
+			}
+		}
+	});
+	if(!$("#createEventForm").valid()){
+		$('body,html').animate({scrollTop:0},1000);
+		return;
+	}
+	var hs=$("#hours").val();
+	var ms=$("#minis").val();
+	if(hs>=0&&hs<=23){
+	}else{
+		var err="<label class=error>请输入正确的小时。</label>";
+		$("#st_li").append(err);
+		document.getElementById("hours").focus();
+		$('body,html').animate({scrollTop:0},1000);
+		return;
+	}
+	if(ms>=0&&ms<=59){
+	}else{
+		var err="<label class=error>请输入正确的分钟。</label>";
+		$("#st_li").append(err);
+		document.getElementById("minis").focus();
+		$('body,html').animate({scrollTop:0},1000);
+		return;
+	}
+	
+	var hs2=$("#hours2").val();
+	var ms2=$("#minis2").val();
+	if(hs2>=0&&hs2<=23){
+	}else{
+		var err="<label class=error>请输入正确的小时。</label>";
+		$("#ed_li").append(err);
+		document.getElementById("hours2").focus();
+		$('body,html').animate({scrollTop:0},1000);
+		return;
+	}
+	if(ms2>=0&&ms2<=59){
+	}else{
+		var err="<label class=error>请输入正确的分钟。</label>";
+		$("#ed_li").append(err);
+		document.getElementById("minis2").focus();
+		$('body,html').animate({scrollTop:0},1000);
+		return;
+	}
+	var stval=$("#starttime").val();
+	var edval =$("#endtime").val()
+	if(stval==""){
+		var err="<label class=error>请选择正确的时间。</label>";
+		 $("#st_li").append(err);
+		 document.getElementById("starttime").focus();
+		 $('body,html').animate({scrollTop:0},1000);
+		 return;
+	}
+	if(edval==""){
+		var err="<label class=error>请选择正确的时间。</label>";
+		 $("#ed_li").append(err);
+		 document.getElementById("endtime").focus();
+		 $('body,html').animate({scrollTop:0},1000);
+		 return;
+	}
+	var starttime =$("#starttime").val()+" "+$("#hours").val()+":"+$("#minis").val()
+	var endtime =$("#endtime").val()+" "+$("#hours2").val()+":"+$("#minis2").val()
+	if(!comptime(starttime+":0",endtime+":0")){
+		 var err="<label class=error>请选择正确的时间。</label>";
+		 $("#st_li").append(err);
+		 document.getElementById("starttime").focus();
+		 $('body,html').animate({scrollTop:0},1000);
+		 return;
+	}
+	
+	ajaxbg2.show(); 
+	var biaoqian=new Array(); 
+	var jiabin=new Array();
+	$('#signBoxChoose a').each(function(i){
+		biaoqian[i]=$(this).attr("id");
+	})
+	
+	$('#shareMan a').each(function(i){
+		jiabin[i]=$(this).attr("id");
+	})
+	
+	var lastmodifytime=$("#lastmodifytime").val();
+	var createtime=$("#createtime").val();
+	var eventid=$("#eventid").val();
+	var topic = $("#topic").val();
+    var subtopic = $("#subtopic").val();
+    var citycode = $("#city").val();
+    var place = $("#place").val();
+    var shareman=$("#shareMani").val();
+    var wholeday = $('input:radio[name="wholeday"]:checked').val();
+    var expenseonline = $("#expenseonline").val();
+    var expenseoffline = $("#expenseoffline").val();
+    var quota = $("#quota").val();
+    var showorder = $("#event_showorder").val();
+    var recommendation =  $('input:radio[name="recommendation"]:checked').val();
+    var state = $("#state").val();
+    var visible =  $('input:radio[name="visible"]:checked').val();
+   // var memo = $("#memo").val();
+    var detail = CKEDITOR.instances.text1.getData();
+    subtopic=UrlEncode(subtopic);
+    topic=UrlEncode(topic);
+    place=UrlEncode(place);
+    shareman=UrlEncode(shareman);
+    detail=UrlEncode(detail);
+    /*
+    subtopic=stringToChangeAnd(stringToChange(subtopic,1),1);   
+    topic=stringToChangeAnd(stringToChange(topic,1),1); 
+    place=stringToChangeAnd(stringToChange(place,1),1); 
+    detail=stringToChangeAnd(stringToChange(detail,1),1); 
+    */
+    jQuery.ajax({
+         type: 'POST',
+         url: '${base}/eventadmin/updateEvent',
+         data: "eventid="+eventid+"&shareman="+shareman+"&createtime="+createtime+"&topic="+topic+"&subtopic="+subtopic+"&citycode="+citycode+"&place="+place+"&starttimes="+starttime+"&endtimes="+endtime+"&wholeday="+wholeday+"&expenseonline="+expenseonline+"&expenseoffline="+expenseoffline
+         +"&quota="+quota+"&recommendation="+recommendation+"&showorder="+showorder+"&state="+state+"&visible="+visible+"&detail="+detail+"&biaoqian="+biaoqian+"&jiabin="+jiabin,
+         success: function(data) {
+			  if(data == 0) {//成功
+				  if($("#flagadd").val()!="save"){
+					//var text2=CKEDITOR.instances.text2.getData();
+					//text2=UrlEncode(text2);
+					//var summaryTitle=$("#summaryTitle").val();
+					//summarySubmit(eventid,text2,summaryTitle);
+					//text2=stringToChangeAnd(stringToChange(text2,1),1); 
+				  	//summarySubmit(eventid,text2,summaryTitle);
+				  	  alert("保存成功!");
+					  document.getElementById("queryEvform").submit();
+				  }
+			  	  return true;
+			  } 
+			  if(data == "1") {
+				  ajaxbg2.hide(); 
+				  alert("操作失败!");
+			  	  return false;
+			  }
+			  if(data == "3") {
+				  ajaxbg2.hide(); 
+				  alert("登录超时!");
+				  document.getElementById("logout").submit();
+			  	  return false;
+			  }
+		  },
+		  error: function(err) {
+			  ajaxbg2.hide(); 
+			  alert("操作失败");
+		  }
+    })
+}
+
+function stringToamp(str){
+	var re = /&amp/g; 
+	alert(str.replace("&",re));
+}
+
+//JS版的urlencode——涂传滨，2012-12-28
+function UrlEncode(str)
+{ 
+    var ret=""; 
+    var strSpecial="!\"#$%&()*+,/:;<=>?[]^`{|}~%"; 
+    for(var i=0;i<str.length;i++)
+    { 
+        var chr = str.charAt(i);
+        var c=str.charCodeAt(i); 
+        if(chr==" ") 
+            ret+="+"; 
+        else if(strSpecial.indexOf(chr)!=-1) 
+            ret+="%"+c.toString(16); 
+        else 
+            ret+=chr;
+    } 
+    return ret; 
+}
+
+function stringToChange(str, boo)
+{
+    var result = "";
+    var  charlist = "+";//
+    for(var i = 0; i < str.length; i++)//字符串str中的字符 
+    {
+        var c1 = str.charAt(i);
+        var c2 = str.charCodeAt(i);
+        if(charlist.indexOf(c1) > -1)
+        {
+            if(" " == c1)
+            {
+                result += "　";
+            }else
+            {
+                result += String.fromCharCode(str.charCodeAt(i) + 65248); 
+            }
+        }else
+        {
+            if(boo > 0)
+            {
+                result += String.fromCharCode(str.charCodeAt(i)); 
+            }else
+            {
+                if("　" == c1)
+                {
+                    result += " ";
+                }else
+                {
+                    if(charlist.indexOf(String.fromCharCode(str.charCodeAt(i) - 65248)) > -1)
+                    {
+                        result += String.fromCharCode(str.charCodeAt(i) - 65248);
+                    }else
+                    {
+                        result += String.fromCharCode(str.charCodeAt(i)); 
+                    }
+                }
+            }
+        } 
+    } 
+    return result;
+}
+
+
+function stringToChangeAnd(str, boo)
+{
+    var result = "";
+    var  charlist = "&";//
+    for(var i = 0; i < str.length; i++)//字符串str中的字符 
+    {
+        var c1 = str.charAt(i);
+        var c2 = str.charCodeAt(i);
+        if(charlist.indexOf(c1) > -1)
+        {
+            if(" " == c1)
+            {
+                result += "　";
+            }else
+            {
+                result += String.fromCharCode(str.charCodeAt(i) + 65248); 
+            }
+        }else
+        {
+            if(boo > 0)
+            {
+                result += String.fromCharCode(str.charCodeAt(i)); 
+            }else
+            {
+                if("　" == c1)
+                {
+                    result += " ";
+                }else
+                {
+                    if(charlist.indexOf(String.fromCharCode(str.charCodeAt(i) - 65248)) > -1)
+                    {
+                        result += String.fromCharCode(str.charCodeAt(i) - 65248);
+                    }else
+                    {
+                        result += String.fromCharCode(str.charCodeAt(i)); 
+                    }
+                }
+            }
+        } 
+    } 
+    return result;
+}
+
+function comptime(startDate,endDate) {
+	 if (startDate.length > 0 && endDate.length > 0) {   
+		    var startDateTemp = startDate.split(" ");   
+		    var endDateTemp = endDate.split(" ");   
+		                   
+		    var arrStartDate = startDateTemp[0].split("-");   
+		    var arrEndDate = endDateTemp[0].split("-");   
+		  
+		    var arrStartTime = startDateTemp[1].split(":");   
+		    var arrEndTime = endDateTemp[1].split(":");   
+		  
+		var allStartDate = new Date(arrStartDate[0], arrStartDate[1], arrStartDate[2], arrStartTime[0], arrStartTime[1], arrStartTime[2]);   
+		var allEndDate = new Date(arrEndDate[0], arrEndDate[1], arrEndDate[2], arrEndTime[0], arrEndTime[1], arrEndTime[2]);   
+		if (allStartDate.getTime() >= allEndDate.getTime()) {   
+		        return false;   
+		}else{
+			 return true;
+		}
+	} 
+}
+/*保存文章*/
+function saveArticle(){
+	var text2=CKEDITOR.instances.text2.getData();
+	var encode_text2=UrlEncode(text2);
+	var summaryTitle=$("#article_summaryTitle").val();
+	var summaryid=$("#article_summaryid").val();
+	var eventid=$("#article_eventid").val();
+	summarySubmit(eventid,encode_text2,text2,summaryTitle,summaryid);
+}
+function summarySubmit(eventid,encode_text2,text2,summaryTitle,summaryid){
+	jQuery.ajax({
+        type: 'POST',
+        url: '${base}/eventadmin/upTextSummary',
+        data: "eventId="+eventid+"&text="+encode_text2+"&summaryTitle="+summaryTitle+"&summaryid=" + summaryid,
+        success: function(data) {
+			  if(data.summaryid != null && data.summaryid.length == 32) {//成功
+				  if(summaryid != null && summaryid.length != 0){//修改的
+					  $('#picBox' + data.summaryid).remove();
+				  }
+				  $('.article_list').append("<div style='width:600px;' id='picBox" + data.summaryid + "'>" + 
+				 		     "<p>" + summaryTitle + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; " + 
+				 		     "<span style='display:none' id='article_" + data.summaryid + "'>" + data.words + "</span>" + 
+				 		     "<a onclick=\"editArticleDialog('" + data.summaryid + "','" + summaryTitle + "')\">编辑</a>&nbsp;&nbsp;" + 
+				 		     "<a onclick=\"del('" + data.summaryid + "')\">删除</a></p></div>"); 
+		 		  $('#editArticleDialog').dialog('close');
+			  	  alert("保存成功!");
+			  	  return true;
+			  } 
+		  },
+		  error: function(err) {
+			  alert("操作失败");
+		  }
+   })	
+}
+
+function delsummary(id,flag) {
+	//提交
+	jQuery.ajax({
+		  type: 'POST',
+		  url: '${base}/eventadmin/delSummary',
+		  data:"id="+id,
+		  success: function(data) {
+			  if(data == 0) {//成功
+				  $("#addopenFile3").show();
+				  $("#delConfirm").dialog( "close" );
+				  $("#picBox"+id).remove();
+			  	  return true;
+			  } 
+			  if(data == 1) {
+				  alert("操作失败!");
+			  	  return false;
+			  } 
+			  if(data == 3) {
+				  alert("登录超时!");
+				  document.getElementById("logout").submit();
+			  	  return false;
+			  } 
+		  },
+		  error: function(err) {
+			  alert("操作失败");
+			  setTimeout(jQuery.unblockUI, 50); 
+		  }
+	});
+}
+
+function getsummary(type,id) {
+	//提交
+	jQuery.ajax({
+		  type: 'POST',
+		  url: '${base}/eventadmin/queryImgSummary',
+		  data:"sumid="+id,
+		  success: function(data) {
+			  if(data.summaryid != null) {//成功
+				  if(type==0){
+					  var time=secondToDate(data.duration,3);
+					  var h=time.split(":")[0];
+					  var m=time.split(":")[1];
+					  var s=time.split(":")[2];
+					  document.getElementById("summaryid3").value=data.eventid;
+					  document.getElementById("snapshot3").value=data.snapshot;
+					  document.getElementById("id3").value=data.summaryid;
+					  document.getElementById("words3").value=data.words;
+					  document.getElementById("num3").value=data.num;
+					  $("#editbox2 #EtimeLong #h2").val(h);
+					  $("#editbox2 #EtimeLong #m2").val(m);
+					  $("#editbox2 #EtimeLong #seconds3").val(s);
+					  document.getElementById("url3").value=data.url;
+					  document.getElementById("typeValue3").value=type;
+					  document.getElementById("recommendation").value=data.recommendation;
+					  document.getElementById("showorder").value=data.showorder;
+					  document.getElementById("downloadcount3").value=data.downloadcount;
+					  $("input[name='videoSource']").each(function() {
+						  if(data.videoSource==$(this).val()) {
+							  $(this).attr("checked", "checked");
+						  }
+					  })
+				  }else{
+					  document.getElementById("typeValue3").value=type;
+					  document.getElementById("summaryid3").value=data.eventid;
+					  document.getElementById("snapshot3").value=data.snapshot;
+					  document.getElementById("id3").value=data.summaryid;
+					  document.getElementById("words3").value=data.words;
+					  document.getElementById("downloadcount3").value=data.downloadcount;
+					  document.getElementById("num3").value=data.num;
+				  }
+				  $( "#editUploadeDialog" ).dialog( "open" );
+			  	  return true;
+			  }else
+			   {
+				  alert("操作失败!");
+			  	  return false;
+			  } 
+		  },
+		  error: function(err) {
+			  alert("操作失败");
+		  }
+	});
+}
+function changgeCity(value){
+	//提交
+	jQuery.ajax({
+		  type: 'POST',
+		  url: '${base}/code/getCityCodeList',
+		  data:"provinceCode="+value,
+		  success: function(data) {
+			  var sel="";
+			  var citycode= $("#citycode").val();
+			  for ( var i = 0; i < data.length; i++) {
+					  if(citycode==data[i].code){
+						  sel+="<option value='"+data[i].code+"'  selected=\"selected\">"+data[i].value+"</option>"
+					  }else{
+						  sel+="<option value='"+data[i].code+"'>"+data[i].value+"</option>"
+					  }
+			  }
+			  $("#city").html("");
+			  $("#city").append(sel);
+			  $("#city").show();
+			  return true;
+		  },
+		  error: function(err) {
+			  alert("操作失败");
+			  return false;
+		  }
+	});
+}
+$(function() {	
+		jQuery.ajax({
+			  type: 'POST',
+			  url: '${base}/code/getProvinceCodeList',
+			  dataType:"json",
+			  success: function(data) {
+				  var sel="";
+				  var citycode= $("#citycode").val();
+				  var city=citycode.substring(0,4);
+				  for ( var i = 0; i < data.length; i++) {
+						  if(city==data[i].code){
+							  sel+="<option value='"+data[i].code+"'  selected=\"selected\">"+data[i].value+"</option>"
+						  }else{
+							  sel+="<option value='"+data[i].code+"'>"+data[i].value+"</option>"
+						  }
+				  }
+				  $("#province").append(sel);
+				  if(city!=""){
+					  changgeCity(city);
+				  }
+				  return true;
+			  },
+			  error: function(err) {
+				  alert("操作失败");
+				  return false;
+			  }
+		});
+});
+
+function validateTime(vid){
+	var idStr="#"+vid;
+	var errorMsg="";
+	if($(idStr+" input.hours").val()==null && $(idStr+" input.minis").val()==null && $(idStr+" input.seconds").val()==null ){
+	   errorMsg="时长不能为空.";
+	   $(idStr).append("<label class=error>"+errorMsg+"</label>");
+	   return false;
+	}else if (!/^\d+$/.test($(idStr+" input.hours").val())) {
+	   errorMsg="请输入有效小时.";
+	   $(idStr).append("<label class=error>"+errorMsg+"</label>");
+	   return false;
+	}else if (!/^\d+$/.test($(idStr+" input.minis").val())) {
+		   errorMsg="请输入有效分钟.";
+		   $(idStr).append("<label class=error>"+errorMsg+"</label>");
+		   return false;
+	}else if (!/^\d+$/.test($(idStr+" input.seconds").val())) {
+		   errorMsg="请输入有效秒数.";
+		   $(idStr).append("<label class=error>"+errorMsg+"</label>");
+		   return false;
+	}else if ($(idStr+" input.hours").val()>=24) {
+		   errorMsg="请输入有效小时数.";
+		   $(idStr).append("<label class=error>"+errorMsg+"</label>");
+		   return false;
+	}else if ($(idStr+" input.minis").val() >=60) {
+		   errorMsg="请输入有效分钟数.";
+		   $(idStr).append("<label class=error>"+errorMsg+"</label>");
+		   return false;
+	}else if ($(idStr+" input.seconds").val()>=60) {
+		   errorMsg="请输入有效秒数.";
+		   $(idStr).append("<label class=error>"+errorMsg+"</label>");
+		   return false;
+	}else{
+	   $(idStr+" label.error").remove();
+	   return true;
+	}
+}
+</script>
+</head>
+<body>
+ <form action="${base}/lagouAdmin/logout" id="logout" target="_top"></form>
+<form action="${base}/eventadmin/queryEvents" id="queryEvform"></form>
+<input type="hidden" name="userurl" id="userurl" value="${base}/adminuser/Eventuser"></input>
+<input type="hidden" name="eventid" id="eventid" value="$!{event.eventid}"/>
+<input type="hidden" name="createtime" id="createtime" value="$!{event.createtime}"/>
+<input type="hidden" name="lastmodifytime" id="lastmodifytime" value="$!{event.lastmodifytime}"/>
+<form id="createEventForm">
+<div class="info" style="width:90%; margin:5px auto;">
+  <h5 class="clearfix" style="border-bottom:1px #060 solid"> 
+  		 #if($!{flag})创建新活动#else编辑活动#end  &nbsp;&nbsp;
+  		<a href="${base}/eventadmin/queryEvents" >返回</a>
+  </h5>
+  <ul class="messageBox">
+    <li id="topic_li">
+      <label>标题:</label>
+      <input type="text" name="topic" value="$!{event.topic}" id="topic" class="text ui-corner-all" size="60"/>
+    </li>
+    <li>
+      <label>简介:</label>
+      <textarea cols="120" name="subtopic" id="subtopic" rows="5" class="text ui-corner-all">$!{event.subtopic}</textarea>
+    </li>
+    <li class="clearfix">
+      <label style="float:left;">分享嘉宾:</label>
+	  <div class="shareMan" id="shareMan" style="float:left;">
+	   #foreach($lectrue in $!{lectrue} )
+	  	<a id="$!{lectrue.user.userid}" title="点击删除" onclick="delMan('$!{lectrue.user.userid}')">$!{lectrue.user.name}</a>
+	   #end
+	  
+	  </div>	
+      &nbsp;&nbsp;
+      <button id="addMan">添加</button>  <input id="shareMani" class="text ui-corner-all" type="text" size="70" value="$!{event.shareman}" name="shareMani">
+    </li>
+    
+   
+    <li>
+      <label>城市:</label>
+      <select id="province" name="province" onchange="changgeCity(this.value)">
+      		<option>--请选择--</option>
+      </select>
+      <select id="city" name="city" style="display: none;">
+      		<option value="">--请选择--</option>
+      </select>
+      <input type="hidden" name="citycode"  value="$!{event.citycode}" id="citycode" class="text ui-corner-all" size="10"/>
+    </li>
+    <li>
+      <label>地址:</label>
+      <input type="text" name="place" value="$!{event.place}" id="place" class="text ui-corner-all" size="50"/>
+    </li>
+    <li id="st_li">
+      <label>预计开始时间:</label>
+      <input type="text" name="starttime" readonly="readonly" value="#if(!$!{flag})$dateTool.format("yyyy-MM-dd",$!{event.starttime})#end" id="starttime" class="text ui-corner-all datePicker" size="15"/>
+      <input type="text" name="hours" id="hours" class="hours" size="3" value="#if(!$!{flag})$!{hours}#else 0 #end"/>
+      :
+      <input type="text" name="minis" id="minis"  class="minis"  size="3" value="#if(!$!{flag})$!{minis}#else 0 #end"/>
+    </li>
+    <li id="ed_li">
+      <label>预计结束时间:</label>
+      <input type="text" name="endtime" readonly="readonly" value="#if(!$!{flag})$dateTool.format("yyyy-MM-dd",$!{event.endtime})#end" id="endtime" class="text ui-corner-all datePicker" size="15"/>
+      <input type="text" name="hours2" id="hours2" class="hours"  size="3" value="#if(!$!{flag})$!{hours2}#else 0 #end"/>
+      :
+      <input type="text" name="minis2" id="minis2" class="minis"  size="3" value="#if(!$!{flag})$!{minis2}#else 0 #end"/>
+    </li>
+    <li>
+      <label>是否全天:</label>
+      &nbsp;&nbsp;
+      <input name="wholeday" id="wholeday" style="vertical-align: middle; border:0;" type="radio" value="0" #if($!{event.wholeday}==0)checked="checked"#end #if(!$!{event.wholeday})checked="checked"#end />
+      &nbsp;否&nbsp;&nbsp;
+      <input name="wholeday" id="wholeday" style="vertical-align: middle; border:0;" type="radio" value="1" #if($!{event.wholeday}==1)checked="checked"#end/>
+      &nbsp;是</li>
+    <li>
+      <label>网站报名费用(<em>元/人</em>):</label>
+      <input type="text" name="expenseonline" value="$!{event.expenseonline}" id="expenseonline" class="text ui-corner-all" size="10"/></li>
+    <li>
+      <label>现场报名费用(<em>元/人</em>):</label>
+      <input type="text"  name="expenseoffline" value="$!{event.expenseoffline}" id="expenseoffline" class="text ui-corner-all" size="10"/></li>
+    <li>
+      <label>人数限额:</label>
+      <input type="text"  name="quota" id="quota" value="$!{event.quota}"  class="text ui-corner-all" size="10"/>
+    </li>
+    <li>
+      <label>是否推荐:</label>
+      &nbsp;&nbsp;
+      <input name="recommendation" id="recommendation" style="vertical-align: middle; border:0;" type="radio" value="0" #if($!{event.recommendation}==0)checked="checked"#end/>
+      &nbsp;否&nbsp;&nbsp;
+      <input name="recommendation" id="recommendation" style="vertical-align: middle; border:0;" type="radio" value="1" #if($!{event.recommendation}==1)checked="checked"#end #if(!$!{event.recommendation})checked="checked"#end/>
+      &nbsp;是</li>
+    <li>
+      <label>状态:</label>
+      <select name="state" id="state">
+        <option value="1" #if($!{event.state}==1)selected="selected"#end>接受报名</option>
+        <option value="0" #if($!{event.state}==0)selected="selected"#end>不接受报名</option>
+        <option value="2" #if($!{event.state}==2)selected="selected"#end>已结束</option>
+      </select>
+    </li>
+    <li>
+      <label>是否可见:</label>
+      &nbsp;&nbsp;
+      <input name="visible" id="visible" type="radio" style="vertical-align: middle; border:0;" value="0" #if($!{event.visible}==0)checked="checked"#end #if(!$!{event.visible})checked="checked"#end/>
+      &nbsp;否&nbsp;&nbsp;
+      <input name="visible" id="visible" type="radio" style="vertical-align: middle; border:0;" value="1" #if($!{event.visible}==1)checked="checked"#end/>
+      &nbsp;是</li>
+    <li>
+    <input type="hidden" name="showorder" id="event_showorder" value="$!{event.showorder}"/>
+    </li>
+  </ul>
+  <div class="info">
+    <h5 class="clearfix">标签</h5>
+  </div>
+  <div class="clearfix"></div>  
+  <div style="margin-left:120px;">
+    <div class="signBoxChoose" id="signBoxChoose">
+     #foreach($eventlables in $!{eventLabels} )
+    	<a id="$!{eventlables.label.labelid}" title="点击删除" 
+    	#if($velocityCount%7==0)style="background-color:#00998a"#end
+    	#if($velocityCount%7==1)style="background-color:#66b82b"#end
+    	#if($velocityCount%7==2)style="background-color:#e050c3"#end
+    	#if($velocityCount%7==3)style="background-color:#406ec3"#end
+    	#if($velocityCount%7==4)style="background-color:#ff6600"#end
+    	#if($velocityCount%7==5)style="background-color:#52e9da"#end
+    	#if($velocityCount%7==6)style="background-color:#85C034"#end
+    	 onclick="delSign('$!{eventlables.label.labelid}')">$!{eventlables.label.label}</a>
+     #end
+    </div>
+    <div class="signBoxList">
+     <ul id="sign">
+      #foreach($eventlable in $!{eventLabel} )
+      	<li><a name="$!{eventlable.labelid}">$!{eventlable.label}</a></li>
+      #end
+      <li><a id="addSignBtn" title="添加新标签"><strong>+</strong></a></li>
+     </ul>
+    </div>
+  </div>
+  <div class="clearfix"></div> 
+  <div class="info">
+    <h5 class="clearfix">详情</h5>
+  </div>
+  <div style="margin-left:120px;">
+   <!--  <textarea id="text1" name="detail"  rows="12" cols="120" class="ckeditor" >#if($!{event.detail})$!{event.detail}#else #end</textarea>-->
+    <textarea class="ckeditor" id="text1" name="editor1">#if($!{event.detail})$!{event.detail}#else #end</textarea>
+
+  </div>
+  <input type="hidden" id="flagadd" value="$!{flag}"> </input>
+  #if(!$!{flag})
+  <div class="info">
+    <h5 class="clearfix">素材</h5>
+    <div style="margin-left:120px; margin-right:130px;">
+      <div id="tabs">
+        <ul>
+          <li><a href="#tabs1">视频素材</a></li>
+          <li><a href="#tabs2">PPT素材</a></li>
+          <li><a href="#tabs3">文字素材</a></li>
+          <li><a href="#tabs4">海报</a></li>
+        </ul>
+        <div id="tabs1">
+         <div class="grid_head">
+            <button class="add" type="button" onclick="openFileDialog(0)">添加视频</button>
+          </div>
+         <div class="picContent" id="picContent" style="height: 151px;">
+				 #foreach($summaryList in $!{summary} )
+				 	#if($!{summaryList.type}==0)
+				 		<div class="picBox" id="picBox$!{summaryList.summaryid}"> 
+				 		     <a onclick="playRedio('$!{summaryList.url}',392, 488)"><img src="$!{summaryList.snapshot}" width="80" height="80"/></a>
+				 		     <br/><p></p>
+				 		     <p>
+				 		     <a onclick="editFileDialog(0,'$!{summaryList.summaryid}')">编辑</a>&nbsp;&nbsp;
+				 		     <a onclick="del('$!{summaryList.summaryid}')">删除</a>
+				 		     </p>
+				 		</div>
+				 	#end
+				 #end
+          </div>
+          <div class="clearfix"></div>         
+        </div>
+        <div id="tabs2">
+          <div class="grid_head">
+            <button class="add" type="button" onclick="openFileDialog(1)">添加PPT</button>
+          </div>
+          <div class="picContent2" id="picContent2" style="height: 151px;">
+				 #foreach($summaryList in $!{summary} )
+				 	#if($!{summaryList.type}==1)
+				 		<div class="picBox" id="picBox$!{summaryList.summaryid}"> 
+				 		      <a onclick="playRedio2('$!{summaryList.snapshot}',392, 488)"><img src="$!{summaryList.snapshot}" width="80" height="80"  /></a>
+				 		     <br/><p></p>
+				 		     <p>
+				 		     <a onclick="editFileDialog(1,'$!{summaryList.summaryid}')">编辑</a>&nbsp;&nbsp;
+				 		     <a onclick="del('$!{summaryList.summaryid}')">删除</a>
+				 		     </p>
+				 		</div>
+				 	#end
+				 #end
+          </div>
+          <div class="clearfix"></div> 
+        </div>
+        
+        <div id="tabs3" style="height:189px;">
+        	<div class="grid_head" >
+        		<button class="add" type="button" onclick="addArticleDialog()">添加文章</button>
+          	</div>
+          	<div class="picContent article_list" id="picContent" style="height:154px;">
+				 #foreach($summaryList in $!{summary})
+				 	#if($!{summaryList.type}==2)
+				 		<div  style="width:600px;" id="picBox$!{summaryList.summaryid}"> 
+				 		     <p>$!{summaryList.summaryTitle}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				 		     <span style="display:none" id="article_$!{summaryList.summaryid}">$!{summaryList.words}</span>
+				 		     <a onclick="editArticleDialog('$!{summaryList.summaryid}','$!{summaryList.summaryTitle}')">编辑</a>&nbsp;&nbsp;
+				 		     <a onclick="del('$!{summaryList.summaryid}')">删除</a>
+				 		     </p>
+				 		</div>
+				 	#end
+				 #end
+          </div>
+        </div>
+        <div id="tabs4"> 
+        	<div class="grid_head">
+            	<button class="add" type="button" onclick="openFileDialog(3)" id="addopenFile3">添加海报</button>
+          	</div>
+          <div class="picContent3" id="picContent3" style="height: 151px;">
+				 #foreach($summaryList in $!{summary} )
+				 	#if($!{summaryList.type}==3)
+				 		<div class="picBox" id="picBox$!{summaryList.summaryid}"> 
+				 		     <a onclick="playRedio2('$!{summaryList.snapshot}',392, 488)"><img src="$!{summaryList.snapshot}" width="80" height="80"  /></a>
+				 		     <br/><p></p>
+				 		     <p>
+				 		     <a onclick="dels('$!{summaryList.summaryid}',1)">删除</a>
+				 		     </p>
+				 		</div>
+				 	#end
+				 #end
+          </div>      
+          <div class="clearfix"></div> 
+        </div>
+      </div>
+    </div>
+  </div>
+  #else
+  <div class="info">
+    <h5 class="clearfix">海报</h5>
+    <div style="margin-left:120px; margin-right:130px;">
+      <div id="tabs">
+        <ul>
+          <li><a href="#tabs5">海报</a></li>
+        </ul>
+        <div id="tabs5"> 
+          <div class="grid_head">
+            <button class="add" type="button" onclick="openFileDialog(3)" id="addopenFile3">添加海报</button>
+          </div>
+          <div class="picContent3" id="picContent3" style="height: 151px;">
+          </div>      
+          <div class="clearfix"></div> 
+        </div>
+      </div>
+    </div>
+  </div>
+  #end
+  <div style="margin-left:120px; margin-top:20px;">
+    <button type="button" id="save" onclick="eventSubmit();">保存</button>
+    <a id="cancel" href="${base}/eventadmin/queryEvents">取消</a>
+  </div>
+</div>
+</form>
+<div class="alertDiv">
+<div id="background2" class="background2" ></div> 
+<div id="progressBar2" class="progressBar2" >保存中，请稍等...</div> 
+</div>
+<div id="memberList" title="请选择分享嘉宾(可多选)"></div>
+<div id="uploadeDialog" title="上传">
+<div id="background" class="background" ></div> 
+<div id="progressBar" class="progressBar" >上传中，请稍等...</div> 
+<form action="${base}/eventadmin/upload" enctype="multipart/form-data" id="uploadform" method="post">
+<input type="hidden"  name="type" id="typeValue"/>
+<input type="hidden"  name="id" id="summaryid" value="$!{event.eventid}"/>
+<ul class="editbox">
+   <li id="fileChoose"><label>文件:</label><input type="file" name="myfiles" onChange="clickFileName(this,1)" id="myfiles" class="text ui-corner-all" size="30"/></li>   
+   <li id="cutPic"><label>截图:</label><input type="file" name="myfiles" onChange="clickFileName(this,2)" id="myfiles2" class="ui-corner-all" size="30" /></li>  
+   <li id="timeLong"><label>时长:</label><input type="text" id="h" class="hours" name="h" size="3" value="0"/>小时<input type="text" id="m" class="minis" name="m" size="3" value="0"/>分<input type="text"  name="seconds" id="seconds" class="seconds"  size="3" value="0"/>秒</li>
+   <li id="wenzi"><label>文字:</label><input type="text" name="words" id="words" class="text ui-corner-all" size="45"/></li>
+   <li id="xuhao"><label>序号:</label><input type="text" name="num" id="num" class="text ui-corner-all"  size="45"/></li>
+   <li id="showerror" class="spec"><label>&nbsp;</label><em>请输入0-99之间的正整数。</em></li>  
+   <li id="videoSource"><label>视频来源:</label>
+   		<input type="radio" name="videoSource" value="1" checked="checked"/>CC视频
+   		<input type="radio" name="videoSource" value="2"/>优酷
+  	</li>
+   <li id="videolink"><label>视频ID:</label><input type="text" name="url" id="url" class="text ui-corner-all" size="45" /></li>    
+</ul>
+</form>
+
+</div>
+<!-- 填写文章 -->
+<div id="editArticleDialog" title="编辑文章" style="width:800px">
+<form action="${base}/eventadmin/upTextSummary"  id="articleform" method="post">
+<input type="hidden"  name="id" id="article_eventid" value="$!{event.eventid}"/>
+<input type="hidden"  name="summaryid" id="article_summaryid" value=""/>
+<ul class="messageBox"> <!--   -->
+  <li id="article_topic_li">
+   <label>文章标题:</label>
+   <input type="text" style="width:500px" id="article_summaryTitle" name="summaryTitle" id="summaryTitle" class="text ui-corner-all" size="100"/>
+  </li></br>
+  <li>
+    <textarea id="text2"  name="text2" style="width:800px;" class="ckeditor" ></textarea>
+  </li>
+</ul>
+<div style="margin-left:120px; margin-top:20px;">
+    <button type="button" class="ui-button-text" id="save_article" onclick="saveArticle();">保存</button>
+    <button type="button" class="ui-button-text" id="cancel_article" onclick="$('#editArticleDialog').dialog({autoOpen:false});$('#editArticleDialog').dialog('close');">取消</button>
+</div>
+</form>
+</div>
+
+
+<script>
+ $("#chooseFileBtn").click(function(){
+	 $("#myfiles").click();
+	 return;
+ });
+$("#choosePicFileBtn").click(function(){
+	 $("#myfiles2").click();
+	 return;
+});
+</script>
+<div id="editUploadeDialog" title="编辑上传">
+<form action="${base}/eventadmin/updataSummary"  id="upform" method="post">
+<input type="hidden"  name="id" id="summaryid3" value="$!{event.eventid}"/>
+<input type="hidden"  name="summaryid" id="id3" />
+<input type="hidden"  name="snapshot" id="snapshot3" />
+<input type="hidden"  name="type" id="typeValue3"/>
+<input type="hidden"  name="recommendation" id="recommendation" /><!-- 111111111111 -->
+<input type="hidden"  name="showorder" id="showorder" /><!-- 111111111111 -->
+<input type="hidden"  name="downloadcount" id="downloadcount3"/>
+<ul class="editbox" id="editbox2">   
+   <li><label>文字:</label><input type="text" name="words" id="words3"  class="text ui-corner-all" size="45"/></li>
+   <li id="xuhao2"><label>序号:</label><input type="text" name="num" id="num3" class="text ui-corner-all" size="45" /></li>
+    <li class="spec"><label>&nbsp;</label><em>请输入0-99之间的正整数。</em></li> 
+   <li id="EtimeLong"><label>时长:</label><input type="text" id="h2" class="hours" name="h" size="3"/>小时<input type="text" id="m2" class="minis" name="m" id="minis"  size="3"/>分<input type="text"  name="seconds" id="seconds3" class="seconds"   size="3"/>秒</li>
+   <li id="videoSourceEdit"><label>视频来源:</label>
+   		<input type="radio" name="videoSource" value="1"/>CC视频
+   		<input type="radio" name="videoSource" value="2"/>优酷
+  	</li>
+   <li id="Evideolink"><label>视频ID:</label><input type="text" name="url" id="url3"  class="text ui-corner-all" size="45" /></li>    
+</ul>
+</form>
+</div>
+<div id="playRedio" title="预览">
+</div>
+<div id="delConfirm" title="删除">
+ 确认删除？
+</div>
+<div id="addSign" title="添加标签">
+ <ul class="messageBox">   
+   <li><input type="text" id="newSign" class="text ui-corner-all"/></li>
+</ul>
+</div>
+<script>
+var ajaxbg = $("#background,#progressBar"); 
+ajaxbg.hide(); 
+var ajaxbg2 = $("#background2,#progressBar2"); 
+ajaxbg2.hide(); 
+function uploadImage() {
+	ajaxbg.show();
+	 $('#uploadform').ajaxSubmit({
+		success: function (html, status) {
+			ajaxbg.hide(); 
+			if(status=="success"&&html.summaryid!="undefined"){
+				var size=$("#picContent .picBox").size();
+			    var div="<div class=\"picBox\" id=\"picBox"+html.summaryid+"\"> <a onclick=\"playRedio('"+html.url+"',392, 488)\"><img src=\""+html.snapshot+"\" width=\"80\" height=\"80\"  /></a><br  /><p></p><p><a onclick=\"editFileDialog(0,'"+html.summaryid+"')\">编辑</a>&nbsp;&nbsp;<a onclick=\"del('"+html.summaryid+"')\">删除</a></p></div>"
+			    $("#picContent").append(div);
+			}else{
+				alert("上传失败,浏览器不支持!");
+			}
+		 }
+	});
+}  
+
+function uploadppt() {  
+	 ajaxbg.show(); 
+	 $('#uploadform').ajaxSubmit({
+		success: function (html, status) {
+			ajaxbg.hide(); 
+			if(status=="success"&&html.summaryid!="undefined"){
+				var size=$("#picContent2 .picBox").size();
+			    var div="<div class=\"picBox\" id=\"picBox"+html.summaryid+"\"> <a onclick=\"playRedio2('"+html.snapshot+"',392, 488)\"><img src=\""+html.snapshot+"\" width=\"80\" height=\"80\"  /></a><br  /><p></p><p><a onclick=\"editFileDialog(1,'"+html.summaryid+"')\">编辑</a>&nbsp;&nbsp;<a onclick=\"del('"+html.summaryid+"')\">删除</a></p></div>"
+			    $("#picContent2").append(div);
+			}else{
+				alert("上传失败,浏览器不支持!");
+			}
+		 }
+	});
+}  
+
+function uploadsnapshot() {  
+	 ajaxbg.show(); 
+	 $('#uploadform').ajaxSubmit({
+		success: function (html, status) {
+			ajaxbg.hide(); 
+			if(status=="success"&&html.summaryid!="undefined"){
+			    var div="<div class=\"picBox\" id=\"picBox"+html.summaryid+"\"> <a onclick=\"playRedio2('"+html.snapshot+"',392, 488)\"><img src=\""+html.snapshot+"\" width=\"80\" height=\"80\"  /></a><br  /><p></p><p><a onclick=\"del('"+html.summaryid+"')\">删除</a></p></div>"
+			    $("#picContent3").append(div);
+			    var size=$("#picContent3 .picBox").size();
+				if(size==1){
+					$("#addopenFile3").hide();
+				}
+			}else{
+				alert("上传失败,浏览器不支持!");
+			}
+		 }
+	});
+} 
+
+function upImage() {  
+	 $('#upform').ajaxSubmit({
+		success: function (html, status) {
+		 }
+	});
+}  
+
+function upppt() {  
+	 $('#upform').ajaxSubmit({
+		success: function (html, status) {
+		 }
+	});
+}  
+
+function upsnapshot() {  
+	 $('#upform').ajaxSubmit({
+		success: function (html, status) {
+		 }
+	});
+} 
+
+function clickFileName(upload_field,types) {	
+	
+	var fileSize = 0; 
+	var target=upload_field;
+	var isIE = /msie/i.test(navigator.userAgent) && !window.opera;
+	try {
+		if (isIE && !target.files) {      
+		      var filePath = target.value;      
+		      var fileSystem = new ActiveXObject("Scripting.FileSystemObject");         
+		      var file = fileSystem.GetFile (filePath);      
+		      fileSize = file.Size;     
+		    } else {     
+		     fileSize = target.files[0].size;      
+		     }    
+	} catch (e) {
+		alert("请降低IE安全级别，或使用Firefox/Chrome上传。");
+	}
+    var size = fileSize / 1000;     
+    var maxsize=1000*20;
+    if(size>maxsize){   
+      	alert("只允许上传不超过20MB的文件。"); 
+      	upload_field.value="";
+      	return false;
+    }  
+	var type=$("#typeValue").val();
+	var re_text="";
+	if(type==0&&types==2){
+		re_text=/\jpg|\png/i;
+	}
+	if(type==1&&types==1){
+		re_text=/\ppt|\pptx|\pdf/i; 
+	}else{
+		re_text=/\jpg|\png/i;
+	}
+	if(type==3&&types==1){
+		 re_text=/\jpg|\png/i;
+	}
+	var filename = upload_field.value;          //这个是得到文件域的值
+// 	if(types==1){ $("#text001").val(filename);}
+// 	if(types==2){ $("#text002").val(filename);}
+	var newFileName = filename.split('.');        //这是将文件名以点分开,因为后缀肯定是以点什么结尾的.
+	newFileName = newFileName[newFileName.length-1];           //这个是得到文件后缀,因为split后是一个数组所以最后的那个数组就是文件的后缀名.
+	if (newFileName.search(re_text) == -1) {                  //search如果没有刚返回-1.这个如果newFileName在re_text里没有,则为不允许上传的类型. .
+	   if(type==0&&types==2){
+		   alert("选择失败:文件类型错误。仅支持 : *.jpg;*.png;图片格式!");
+		}
+		if(type==1&&types==1){
+			alert("选择失败:文件类型错误。仅支持 : *.ppt;*.pptx;*.pdf;文件格式!");
+		}
+		if(type==1&&types==2){
+			 alert("选择失败:文件类型错误。仅支持 : *.jpg;*.png;图片格式!");
+		}
+		if(type==3&&types==1){
+			 alert("选择失败:文件类型错误。仅支持 : *.jpg;*.png;图片格式!");
+		}
+	   upload_field.form.reset();
+	   return false;
+	}
+}
+
+function addArticleDialog(){
+	$('#article_summaryid').val('');
+	$('#article_summaryTitle').val('');
+	CKEDITOR.instances.text2.setData('');
+	//$('#editArticleDialog').dialog({autoOpen:false});
+	$('#editArticleDialog').dialog('open');
+}
+
+function editArticleDialog(summaryid, title){
+	$('#article_summaryid').val(summaryid);
+	$('#article_summaryTitle').val(title);
+	CKEDITOR.instances.text2.setData($('#article_' + summaryid).text());
+	//$('#editArticleDialog').dialog({autoOpen:false});
+	$('#editArticleDialog').dialog('open');
+}
+</script>
+</body>
+</html>

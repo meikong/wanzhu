@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+#parse("common/common.html")
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="${base}/js/jquery-1.8.2.js" type="text/javascript" language="javascript" ></script>
+<script src="${base}/js/jquery-ui.js" type="text/javascript" language="javascript" ></script>
+<link href="${base}/template/admin/css/south-street/jquery-ui-1.9.1.custom.css" type="text/css" rel="stylesheet"  />
+<link href="${base}/template/admin/css/css.css" type="text/css" rel="stylesheet"  />
+<script src="${base}/js/jquery.validate.js" type="text/javascript" ></script>
+<script src="${base}/js/form_validate.js" type="text/javascript" ></script>
+<title>登录</title>
+<script>
+$(function() {		
+	document.getElementById("administrator").focus();
+		 $( "#login" ).button({
+            icons: {
+                primary: "ui-icon-locked"
+            }
+        });
+		 $( "#reset" ).button({
+            icons: {
+                primary: "ui-icon-close"
+            }
+        });
+});
+function valSubmit() {
+	$('#valForm').validate({
+		rules : {
+			'administrator' : {
+				required : true
+			},
+			'password' : {
+				required : true
+			}
+		},
+		messages : {
+			'administrator' : {
+				required : "请输入用户名"
+			},
+			'password' : {
+				required : "请输入密码"
+			}
+		}
+	})
+	if ($('#valForm').valid()) {
+		$('#valForm').submit();
+	} else
+		return false;
+}
+
+$(document).ready(function(){ 
+    $("#password").keydown(function(e){ 
+        var curKey = e.which; 
+        if(curKey == 13){ 
+            $("#valForm").submit(); 
+            return true; 
+        } 
+    }); 
+}); 
+function returnNULL(){
+	$("#loginflag").hide();
+}
+</script>
+</head>
+
+<body class="loginBody">
+
+<div class="loginPanel">
+<div class="clearfix" style="margin-bottom:100px;"></div>
+<form action="${base}/lagouAdmin/logins" id="valForm" method="post" target="_top">
+ <ul class="loginBox">
+  <li><label>用户名:</label>&nbsp;&nbsp;<input type="text" id="administrator" name="administrator" onchange="returnNULL();" class="text ui-corner-all"/></li>
+  <li><label>密码:</label>&nbsp;&nbsp;<input type="password" id="password" name="password" class="text ui-corner-all"/></li>  
+  <div id="loginflag">#if($!{errorCode})<li style="line-height:23px;"><label>&nbsp;</label>&nbsp;<label class="error">$!{errorCode}</label></li>#end</div>
+  <li><label>&nbsp;&nbsp;&nbsp;&nbsp;</label><button id="login" onclick="valSubmit();">登录</button>&nbsp;&nbsp;&nbsp;<button id="reset">重置</button></li>  
+ </ul>
+ </form>
+</div>
+</body>
+</html>
